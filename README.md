@@ -1,114 +1,116 @@
 # Playwright + TypeScript Test Framework Skeleton
 
-Стартовий каркас для UI, API, end-to-end та інших автоматизованих перевірок на **Playwright Test** і **TypeScript**. Репозиторій містить базову структуру, конфігурацію, приклад тесту й утиліти; він не містить окремого застосунку під тестом.
+A starter skeleton for UI, API, end-to-end, and other automated checks using **Playwright Test** and **TypeScript**. The repository provides a baseline structure, configuration, a sample test, and utilities; it does not include a separate application under test.
 
-## Передумови
+**Language:** English (primary) · [Українська](README.uk.md)
 
-- Node.js (рекомендовано актуальну LTS-версію) та npm.
-- Доступ до інтернету для встановлення браузерів і запуску наявних прикладів, які відкривають `https://playwright.dev/`.
+## Prerequisites
 
-## Встановлення
+- Node.js (the current LTS release is recommended) and npm.
+- Internet access to install Playwright browsers and run the existing sample tests, which visit `https://playwright.dev/`.
 
-У корені репозиторію виконай:
+## Installation
+
+From the repository root, run:
 
 ```bash
 npm ci
 npx playwright install
 ```
 
-На Linux, якщо системні залежності браузерів ще не встановлені:
+On Linux, if browser system dependencies are not installed yet:
 
 ```bash
 npx playwright install --with-deps
 ```
 
-## Запуск тестів
+## Run tests
 
 ```bash
-# Усі тести в усіх налаштованих браузерах
+# Run all tests across the configured browser projects
 npx playwright test
 
-# Перелік знайдених тестів
+# List the tests Playwright discovers
 npx playwright test --list
 
-# Один браузерний проєкт
+# Run one browser project
 npx playwright test --project=chromium
 
-# Інтерактивний режим Playwright
+# Start Playwright's interactive UI mode
 npx playwright test --ui
 ```
 
-Поточний приклад у `tests/example.spec.ts` перевіряє сторінку документації Playwright на `playwright.dev`. Окремий локальний вебсервер для нього не потрібен. `baseURL` і `webServer` у `playwright.config.ts` поки не налаштовані.
+The current sample in `tests/example.spec.ts` checks the Playwright documentation site at `playwright.dev`. It does not require a local web server. `baseURL` and `webServer` are not currently configured in `playwright.config.ts`.
 
-Після запуску тестів HTML-звіт можна відкрити так:
+After running tests, open the HTML report with:
 
 ```bash
 npx playwright show-report
 ```
 
-Playwright налаштований на Chromium, Firefox і WebKit. Звіт створюється HTML reporter-ом, а trace збирається під час першого повторного запуску тесту.
+The Playwright configuration includes Chromium, Firefox, and WebKit projects. It uses the HTML reporter and collects a trace on the first retry.
 
-## Перевірка типів і lint
+## Type checking and linting
 
-У проєкті увімкнено strict TypeScript і `noEmit`:
+Strict TypeScript checking and `noEmit` are enabled:
 
 ```bash
 npx tsc --noEmit
 ```
 
-Перевірити ESLint для вихідного коду, тестів і Playwright-конфігурації можна так:
+Run ESLint against source, tests, and the Playwright configuration with:
 
 ```bash
 npx eslint src tests playwright.config.ts
 ```
 
-У `package.json` наразі не визначені npm scripts, тому запускай Playwright, TypeScript та ESLint безпосередньо через їхні CLI-команди.
+There are currently no npm scripts in `package.json`, so use the CLI commands directly instead of commands such as `npm test`.
 
-## Налаштування середовища
+## Environment configuration
 
-`.env.example` містить приклад назв змінних і placeholder-значення. За потреби його можна скопіювати для локального налаштування:
+`.env.example` lists environment-variable names with placeholder values. If you need a local environment file, copy the template:
 
 ```bash
 cp .env.example .env
 ```
 
-Заміни placeholder-и власними локальними значеннями, але не додавай `.env` до Git і не публікуй його вміст. `.gitignore` ігнорує локальні `.env`-файли, залишаючи `.env.example` доступним.
+Replace placeholders with your own local values. Do not commit `.env` or publish its contents. `.gitignore` ignores local `.env` files while keeping `.env.example` available.
 
-**Важливо:** dotenv-завантаження в `playwright.config.ts` наразі закоментоване. Тому саме копіювання `.env` не завантажить змінні автоматично в тестовий процес. Поточний приклад тесту не потребує значень із `.env`; для інших сценаріїв передавай потрібні змінні тестовому процесу або налаштуй CI secrets. Не виводь секрети в логи, звіти чи artifacts.
+**Important:** dotenv loading is currently commented out in `playwright.config.ts`. Copying `.env` alone will not automatically load its variables into the test process. The current sample test does not require `.env`; for other scenarios, pass the needed variables to the test process or configure CI secrets. Never print secrets in logs, reports, or artifacts.
 
-## Структура
+## Repository structure
 
 ```text
 src/
-  api/          # місце для повторно використовуваного API-коду
-  components/   # повторно використовувані UI-компоненти
-  config/       # конфігурація фреймворку
-  data/         # спільні дані й моделі
-  fixtures/     # типізовані Playwright fixtures за потреби
-  models/       # спільні TypeScript-моделі
+  api/          # reusable API code
+  components/   # reusable UI components
+  config/       # framework configuration
+  data/         # shared data and models
+  fixtures/     # typed Playwright fixtures when useful
+  models/       # shared TypeScript models
   pages/        # Page Objects
-  utils/        # наявні утиліти
+  utils/        # existing utilities
 
 tests/
-  api/          # API-тести
-  db/           # тести бази даних
-  e2e/          # end-to-end сценарії
-  integration/  # інтеграційні тести
-  testdata/     # статичні дані для тестів
-  visual/       # візуальні перевірки
+  api/          # API tests
+  db/           # database tests
+  e2e/          # end-to-end journeys
+  integration/  # integration tests
+  testdata/     # static test inputs
+  visual/       # visual checks
   example.spec.ts
 ```
 
-Повторно використовуваний код розміщуй у `src/`, а специфічні для тестів сценарії й файли — у `tests/`. Частина каталогів є заготовками для розвитку інфраструктури; їхня наявність не означає, що відповідний тип інтеграції вже налаштований.
+Keep reusable framework code in `src/` and test-specific scenarios and files in `tests/`. Some directories are scaffolding for future work; their presence does not mean the corresponding integration is configured or complete.
 
-У `src/utils/` зараз є утиліти для генерації тестових даних, читання JSON та змінних середовища, MySQL-запитів, очікувань UI, дат і завантаження файлів. Підключення до БД потребує доступної тестової бази й коректних runtime-змінних; наявність клієнта сама по собі цього не забезпечує.
+`src/utils/` currently includes helpers for test-data generation, JSON and environment-variable access, MySQL queries, UI waits, dates, and file uploads. Database tests require a reachable test database and runtime configuration; the presence of a client alone does not provide either.
 
 ## CI
 
-GitHub Actions workflow у `.github/workflows/playwright.yml` запускається на push і pull request до `main` або `master`. Він встановлює залежності та браузери, виконує `npx playwright test` і завантажує `playwright-report/` як artifact. У CI Playwright використовує два retries та одного worker-а.
+The GitHub Actions workflow in `.github/workflows/playwright.yml` runs on pushes and pull requests targeting `main` or `master`. It installs dependencies and browsers, runs `npx playwright test`, and uploads `playwright-report/` as an artifact. In CI, Playwright uses two retries and one worker.
 
-## Додаткова документація
+## Further documentation
 
-- [`CLAUDE.md`](CLAUDE.md) — домовленості для роботи з кодом і референсами.
-- [`playwright-mcp-context.md`](playwright-mcp-context.md) — докладні правила браузерної роботи й тестування в цьому проєкті.
-- [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — дорожня карта; статус запланованих можливостей перевіряй за фактичною реалізацією.
+- [`CLAUDE.md`](CLAUDE.md) — project conventions and reference-use guidance.
+- [`playwright-mcp-context.md`](playwright-mcp-context.md) — detailed browser and testing guidance for this repository.
+- [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — project roadmap; check the implementation before treating planned work as complete.

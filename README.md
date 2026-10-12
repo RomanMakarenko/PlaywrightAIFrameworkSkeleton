@@ -127,6 +127,7 @@ The GitHub Actions workflow in `.github/workflows/playwright.yml` runs on pushes
 
 - [`CLAUDE.md`](CLAUDE.md) — project conventions, security boundaries, and instructions for maintaining project records.
 - [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — roadmap and source of truth for phase checklists and acceptance status.
+- [`docs/web/SITEMAP.md`](docs/web/SITEMAP.md) — evidence-based map of publicly discovered `funtime.com.ua` page families and coverage limits.
 - [`docs/RUNBOOK.md`](docs/RUNBOOK.md) — chronological checkpoints with scope, rationale, verification outcomes, and handoff notes.
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — durable architecture and process decisions, recorded with stable IDs and rationale.
 - [`playwright-mcp-context.md`](playwright-mcp-context.md) — detailed browser and testing guidance for this repository.

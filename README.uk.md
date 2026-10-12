@@ -127,6 +127,7 @@ GitHub Actions workflow у `.github/workflows/playwright.yml` запускаєт
 
 - [`CLAUDE.md`](CLAUDE.md) — домовленості щодо коду, безпеки й ведення проєктних записів.
 - [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — дорожня карта та єдине джерело чеклістів фаз і статусу критеріїв приймання.
+- [`docs/web/SITEMAP.md`](docs/web/SITEMAP.md) — карта виявлених публічних маршрутів `funtime.com.ua` з джерелами й обмеженнями покриття.
 - [`docs/RUNBOOK.md`](docs/RUNBOOK.md) — хронологічні checkpoint-и: scope, причини, результати перевірок і handoff.
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — довготривалі архітектурні й процесні рішення зі стабільними ID та обґрунтуванням.
 - [`playwright-mcp-context.md`](playwright-mcp-context.md) — докладні правила браузерної роботи й тестування в цьому проєкті.

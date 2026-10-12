@@ -68,3 +68,11 @@ Chronological, append-only record of meaningful project checkpoints: what change
 - **Verification:** `git diff --check` — PASS; relative documentation links checked. Tests were not run because the changes are documentation-only.
 - **Evidence:** This checkpoint records the documentation changes and verification results; the resulting commit will be the Git history reference.
 - **Handoff:** Append future meaningful checkpoints here, record only consequential durable choices in `DECISIONS.md`, and update phase status only in `IMPLEMENTATION_PLAN.md` after acceptance criteria pass.
+
+### 2026-10-12 — Playwright MCP shared with project clones
+
+- **Session / scope:** Add Playwright MCP to the repository's shared Claude Code project configuration and remove the private local registration.
+- **Changed artifacts:** Added root `.mcp.json` defining `playwright` as a stdio server launched by `npx -y @playwright/mcp@latest`; removed the project-specific local registration from `~/.claude.json`. No package dependency was added.
+- **Reason:** Ensure collaborators receive the MCP server configuration when cloning the repository while keeping approval in each contributor's hands.
+- **Commands / status:** `claude mcp remove --scope local playwright` — PASS; `claude mcp add --scope project playwright -- npx -y @playwright/mcp@latest` — PASS; `claude mcp list` — configured, **Pending approval**; `.mcp.json` reviewed and valid. `git diff --check` — PASS after the checkpoint was written. Automated tests — NOT RUN (MCP configuration only).
+- **Handoff:** Commit `.mcp.json` so clones receive the configuration. Each contributor must approve the project MCP in Claude Code before using it.

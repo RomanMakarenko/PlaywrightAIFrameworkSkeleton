@@ -16,3 +16,5 @@ node_modules/
 /TASK_SPECK.md
 /reference/design-patterns-typescript/
 /reference/playwright-test-automation-template/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/

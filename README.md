@@ -50,6 +50,20 @@ npx playwright show-report
 
 The Playwright configuration includes Chromium, Firefox, and WebKit projects. It uses the HTML reporter and collects a trace on the first retry.
 
+## Optional: Playwright CLI
+
+The repository also includes an optional `playwright-cli` skill for Claude Code, with browser-automation guidance in `.claude/skills/playwright-cli/SKILL.md` and task-specific references alongside it. The CLI is separate from `@playwright/test`; it is not required to run the test suite, type checks, or CI.
+
+Install the CLI globally and initialize its browser and skill support with:
+
+```bash
+npm install -g @playwright/cli@latest
+playwright-cli install
+playwright-cli install --skills
+```
+
+The CLI writes browser-session output under `.playwright-cli/`, which is ignored by Git. Treat snapshots, traces, screenshots, videos, and any saved browser state as potentially sensitive; review them before sharing and never commit credentials or authenticated state.
+
 ## Type checking and linting
 
 Strict TypeScript checking and `noEmit` are enabled:
@@ -111,6 +125,10 @@ The GitHub Actions workflow in `.github/workflows/playwright.yml` runs on pushes
 
 ## Further documentation
 
-- [`CLAUDE.md`](CLAUDE.md) — project conventions and reference-use guidance.
+- [`CLAUDE.md`](CLAUDE.md) — project conventions, security boundaries, and instructions for maintaining project records.
+- [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — roadmap and source of truth for phase checklists and acceptance status.
+- [`docs/RUNBOOK.md`](docs/RUNBOOK.md) — chronological checkpoints with scope, rationale, verification outcomes, and handoff notes.
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — durable architecture and process decisions, recorded with stable IDs and rationale.
 - [`playwright-mcp-context.md`](playwright-mcp-context.md) — detailed browser and testing guidance for this repository.
-- [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — project roadmap; check the implementation before treating planned work as complete.
+
+Keep these records distinct: the plan tracks current phase status, the runbook records what happened, and the decisions log explains durable choices.

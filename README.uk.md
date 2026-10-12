@@ -50,6 +50,20 @@ npx playwright show-report
 
 Playwright налаштований на Chromium, Firefox і WebKit. Звіт створюється HTML reporter-ом, а trace збирається під час першого повторного запуску тесту.
 
+## Опційно: Playwright CLI
+
+У репозиторії також є додатковий skill `playwright-cli` для Claude Code: інструкції з автоматизації браузера містяться в `.claude/skills/playwright-cli/SKILL.md`, а тематичні довідники — поруч у `references/`. CLI — окремий інструмент від `@playwright/test`; він не потрібен для запуску тестів, перевірки типів чи CI.
+
+Встанови CLI глобально та ініціалізуй підтримку браузера й skills командами:
+
+```bash
+npm install -g @playwright/cli@latest
+playwright-cli install
+playwright-cli install --skills
+```
+
+CLI зберігає дані браузерних сесій у `.playwright-cli/`, цей каталог ігнорується Git. Вважай snapshots, traces, скриншоти, відео й збережений стан браузера потенційно чутливими даними: перевіряй їх перед поширенням і не додавай credentials чи авторизований стан до репозиторію.
+
 ## Перевірка типів і lint
 
 У проєкті увімкнено strict TypeScript і `noEmit`:
@@ -111,6 +125,10 @@ GitHub Actions workflow у `.github/workflows/playwright.yml` запускаєт
 
 ## Додаткова документація
 
-- [`CLAUDE.md`](CLAUDE.md) — домовленості для роботи з кодом і референсами.
+- [`CLAUDE.md`](CLAUDE.md) — домовленості щодо коду, безпеки й ведення проєктних записів.
+- [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — дорожня карта та єдине джерело чеклістів фаз і статусу критеріїв приймання.
+- [`docs/RUNBOOK.md`](docs/RUNBOOK.md) — хронологічні checkpoint-и: scope, причини, результати перевірок і handoff.
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — довготривалі архітектурні й процесні рішення зі стабільними ID та обґрунтуванням.
 - [`playwright-mcp-context.md`](playwright-mcp-context.md) — докладні правила браузерної роботи й тестування в цьому проєкті.
-- [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — дорожня карта; статус запланованих можливостей перевіряй за фактичною реалізацією.
+
+Документи мають різні ролі: план відстежує поточний статус фаз, runbook фіксує виконану роботу, а журнал рішень пояснює довготривалі вибори.

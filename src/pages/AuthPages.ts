@@ -20,7 +20,7 @@ export class LoginPage extends AuthPage {
     return this.page.getByRole('textbox', { name: 'Введіть email', exact: true });
   }
 
-  get passwordInput(): Locator {1
+  get passwordInput(): Locator {
     return this.page.getByRole('textbox', { name: 'Введіть пароль', exact: true });
   }
 

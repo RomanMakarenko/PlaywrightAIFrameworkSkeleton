@@ -182,3 +182,12 @@ Chronological, append-only record of meaningful project checkpoints: what change
 - **Commands / status:** `npm run lint` — PASS; `npm run typecheck` — PASS; `npm run test:smoke` — PASS (1 Chromium test; read-only homepage GET returned the asserted successful status); `git diff --check` — PASS. GitHub Actions PR execution — NOT RUN (no PR or push was requested). Full cross-browser suite — NOT RUN separately; it remains in the workflow unchanged.
 - **Blockers / remaining work:** Phase 8 remains incomplete; regression orchestration, diagnostic artifact handling, runtime pinning, and other unchecked criteria remain open. No secrets or `.env` contents were accessed.
 - **Handoff:** Review and run the workflow through an authorized PR when ready; preserve the existing unrelated working-tree changes.
+
+### 2026-10-13 — Preserve Playwright artifacts after failure or cancellation
+
+- **Session / scope:** Update the existing CI artifact upload to run after failed or canceled steps, include both the HTML report and Playwright test results, and reduce artifact retention.
+- **Changed artifacts:** `.github/workflows/playwright.yml`; appended this checkpoint. The upload step now uses `always()`, selects only `playwright-report/` and `test-results/`, and retains artifacts for 14 days.
+- **Reason:** Preserve bounded diagnostic output when the test job fails or is canceled without broadening the upload to the workspace or including authentication-state paths.
+- **Commands / status:** `git diff --check` — PASS; `ruby -e 'require "yaml"; YAML.load_file(".github/workflows/playwright.yml")'` — PASS (workflow YAML parsed). Playwright tests — NOT RUN (workflow-only change). GitHub Actions failed-run and canceled-run artifact behavior/content review — NOT RUN (no Actions run was initiated); retention and artifact contents therefore remain unverified in GitHub.
+- **Security / limitations:** The uploaded directories do not include the configured `playwright/.auth/` path or root environment files; the authenticated test still disables trace, screenshot, and video. Test results and reports can still contain page or request data, so inspect actual artifacts before treating their contents as safe.
+- **Handoff:** Verify both failed and canceled runs in an authorized GitHub Actions execution, confirm useful artifacts are present with the 14-day retention, and inspect their contents before checking Phase 8 criterion 114. Keep Phase 5 criterion 84 unchecked until its broader acceptance checks are satisfied.

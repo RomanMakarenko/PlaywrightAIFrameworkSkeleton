@@ -1,6 +1,6 @@
 # Functional E2E Test Case Catalog — Funtime
 
-**Designed:** 2026-10-13. Manual test specifications only; none were executed as a test suite. Production cases involving submissions or persistent changes require an approved test environment/account and rollback plan.
+**Designed:** 2026-10-13. Manual test specifications only; none were executed as a test suite. The catalog currently contains 16 existing cases plus the additional cases below. Production cases involving submissions or persistent changes require an approved test environment/account and rollback plan.
 
 ## Execution-state meanings
 
@@ -363,3 +363,228 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 
 **Final expected state:** All selected card identities match destination pages. **Cleanup:** None. **Status:** `NOT_EXECUTED` (some individual transitions have been observed; this broader repeatable check has not been run).
 **Evidence:** Catalog cards, one collection item, and a river recommendation were observed; the corresponding individual transitions are documented in NAV-003 and REL-001. The broader repeated consistency check has not run. **Automation notes:** Use stable accessible names and verify the href before navigation.
+
+## Additional negative and boundary scenarios
+
+### AUTH-003 — Login rejects invalid or unrecognized credentials without authenticating
+
+**Functional area:** Authentication
+**Priority:** P1
+**Type:** Negative / security boundary
+**Preconditions:** An approved non-production environment and disposable test account/data are available; submission is explicitly authorized.
+**Test data:** Malformed email; separately, a reserved non-existent account identifier and non-secret invalid password. Do not use real user identifiers or credentials.
+**Initial state:** Anonymous visitor on `/login` in the approved environment.
+**Template:** Login. **Sitemap pattern:** `/login`.
+**Related cases:** AUTH-001, AUTH-002.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Enter a malformed email and a non-secret password, then submit only in the approved environment. | The attempt does not create an authenticated session; record the observed validation or response without assuming its wording or mechanism. |
+| 2 | If permitted by the test environment, submit an unrecognized test account identifier with a non-secret invalid password. | The visitor remains unauthenticated; record the response without requiring whether the application distinguishes unknown users from incorrect passwords. |
+| 3 | Inspect the URL and any visible response. | No authenticated profile state is available; any messages/redirects are recorded for requirements review. |
+
+**Final expected state:** Anonymous session; no account or persistent data created. **Cleanup:** Clear form state and end the isolated browser context. **Status:** `BLOCKED` until an authorized non-production environment and safe test data are available.
+**Evidence:** Login fields were observed, but submission behavior was not tested. **Automation notes:** Do not submit against production, use real identifiers, or assert account-enumeration behavior.
+
+### AUTH-004 — Registration form handles missing and malformed input
+
+**Functional area:** Authentication / registration
+**Priority:** P1
+**Type:** Negative / boundary
+**Preconditions:** An approved non-production environment is available; registration attempts are safely isolated and explicitly authorized.
+**Test data:** Empty required fields and malformed email; use reserved test values only.
+**Initial state:** Anonymous visitor on `/register`.
+**Template:** Registration. **Sitemap pattern:** `/register`.
+**Related cases:** AUTH-001, AUTH-002.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Inspect the registration form and record fields/controls currently shown. | The visible form can be identified; required-field rules are not assumed from appearance alone. |
+| 2 | In the isolated environment, attempt submission with required fields empty. | No account is created; record the observed validation behavior for confirmation against requirements. |
+| 3 | If safely supported, submit a malformed email with otherwise reserved test data. | No account is created from invalid input; exact message and validation mechanism remain to be verified. |
+| 4 | Return to the form without completing any challenge or external identity flow. | No external login/challenge is bypassed and no persistent account state is left behind. |
+
+**Final expected state:** No account created and no external identity flow completed. **Cleanup:** Remove any isolated test record if one was unexpectedly created; otherwise close the context. **Status:** `BLOCKED` pending an authorized isolated environment and cleanup process.
+**Evidence:** Registration fields and terms were observed; no form submission was performed. **Automation notes:** Do not interact with production registration, CAPTCHA/Turnstile, or real identity providers.
+
+### AUTH-005 — Password reset handles malformed and unknown test addresses safely
+
+**Functional area:** Authentication / password reset
+**Priority:** P2
+**Type:** Negative / security boundary
+**Preconditions:** An approved non-production environment with email delivery safely intercepted; reset requests explicitly authorized.
+**Test data:** Malformed email and a reserved unknown test address. Never use a real mailbox.
+**Initial state:** Anonymous visitor on `/password/reset`.
+**Template:** Password reset. **Sitemap pattern:** `/password/reset`.
+**Related cases:** AUTH-001, AUTH-003.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Inspect the reset form without submitting. | The visible input and action are recorded; no exact validation or account-existence behavior is assumed. |
+| 2 | Submit a malformed email only in the isolated environment. | No real email is sent; observed response is recorded for requirements review. |
+| 3 | Submit the reserved unknown test address only if email delivery is intercepted. | No external message is delivered; record response without assuming whether it reveals account existence. |
+
+**Final expected state:** No real reset email or account change. **Cleanup:** Remove intercepted messages/test data and close the isolated context. **Status:** `BLOCKED` pending non-production isolation and email interception.
+**Evidence:** Reset email field and action were observed; no request was submitted. **Automation notes:** Never use a real email address or production reset flow.
+
+### SRCH-002 — Search with a query that should have no matching test results
+
+**Functional area:** Search
+**Priority:** P2
+**Type:** Negative / empty state
+**Preconditions:** Search input is permitted in an approved test environment; a controlled query can be selected and its absence from the test dataset confirmed.
+**Test data:** A reserved, unique query value confirmed to have no matching test records; do not assume any specific empty-state copy.
+**Initial state:** Anonymous visitor on a public page with the search control available.
+**Template:** Global search / result view. **Sitemap pattern:** Search route not inventoried.
+**Related cases:** SRCH-001, SRCH-003.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open the search interface using its visible control. | Search input is available; current interface and route behavior are recorded. |
+| 2 | Submit the controlled no-match query only in the approved environment. | The resulting state is recorded as results, empty state, or another response; the expected no-match presentation must be confirmed before acceptance assertions are added. |
+| 3 | Inspect the resulting URL and available page content. | The query/result state can be recorded and does not falsely identify an unrelated location as a match. |
+
+**Final expected state:** Search outcome is recorded; no fixed message or URL format is presumed. **Cleanup:** Clear the query if retained. **Status:** `BLOCKED` (search input was denied in the prior audit; test dataset and matching rules are not confirmed).
+**Evidence:** Search entry point was observed; no query was entered. **Automation notes:** Do not bypass browser input restrictions or inject the query through an alternate channel.
+
+### SRCH-003 — Search handles empty, whitespace, and punctuation input
+
+**Functional area:** Search
+**Priority:** P2
+**Type:** Negative / boundary
+**Preconditions:** Search input is permitted in an approved environment.
+**Test data:** Empty string, whitespace-only input, and punctuation-only input, tested separately.
+**Initial state:** Anonymous visitor with the search interface available.
+**Template:** Global search / result view. **Sitemap pattern:** Search route not inventoried.
+**Related cases:** SRCH-001, SRCH-002.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open search and submit with the field empty, if the interface allows submission. | Record whether submission is prevented or a response is shown; exact validation is unconfirmed. |
+| 2 | Enter whitespace-only input and submit in the approved environment. | Record the resulting state; no particular normalization or message is assumed. |
+| 3 | Enter punctuation-only input and submit in the approved environment. | Record the resulting state and confirm that any displayed result is not treated as a valid match without evidence. |
+
+**Final expected state:** Each input outcome is documented without inventing validation rules. **Cleanup:** Clear search state. **Status:** `BLOCKED` (input submission was denied during the audit).
+**Evidence:** Search entry point was observed, but input behavior was not exercised. **Automation notes:** Preserve the browser permission boundary; test only through the visible UI in an authorized context.
+
+### ERR-002 — Unknown or malformed public route produces a stable terminal outcome
+
+**Functional area:** Routing / error handling
+**Priority:** P1
+**Type:** Negative / boundary
+**Preconditions:** A safe, read-only browser context; use only a deliberately reserved path segment that is not a real content slug.
+**Test data:** `/nature/__qa-nonexistent-slug__` and one malformed public path constructed without query strings or state-changing parameters.
+**Initial state:** Anonymous visitor in a new browser context.
+**Template:** Public route resolution. **Sitemap pattern:** `/{category}/{slug}` and unknown public route.
+**Related cases:** ERR-001, NAV-002.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open the reserved nonexistent path directly. | Record whether the site renders an error/not-found state, redirects, or responds another way; no specific status code or copy is assumed. |
+| 2 | Refresh the resulting route. | The resulting behavior is recorded and does not silently become an unrelated content page. |
+| 3 | Use browser Back to return to a known public page. | Browser history remains usable and returns to the prior known route. |
+
+**Final expected state:** Outcome for unknown routes is documented for product confirmation; no live data is changed. **Cleanup:** Close the context. **Status:** `NEEDS_VERIFICATION` (expected not-found/redirect behavior is not defined by available requirements).
+**Evidence:** Existing route checks cover known routes only. **Automation notes:** Do not assert HTTP status, redirect target, error copy, or route normalization until confirmed.
+
+### NEAR-002 — Nearby page handles denied geolocation permission
+
+**Functional area:** Nearby locations / geolocation
+**Priority:** P1
+**Type:** Negative / permission state
+**Preconditions:** Controlled browser profile supports an explicit geolocation-denied state; no location override is configured.
+**Test data:** `/nearby/lakes`; browser geolocation permission set to denied.
+**Initial state:** New anonymous browser context with geolocation denied.
+**Template:** Nearby by type. **Sitemap pattern:** `/nearby/{type}`.
+**Related cases:** NEAR-001, NEAR-003.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/nearby/lakes` with permission denied. | Nearby page and its available controls render; the browser permission state is explicit. |
+| 2 | Observe the location-dependent area until a terminal state is reached. | Record whether the page shows results, an error, an empty state, or a loading state; expected copy/recovery behavior remains to be confirmed. |
+| 3 | Verify the page does not remain indefinitely in an unclassified loading state. | Any persistent loading state is recorded with the permission context and investigated; no fixed timeout is asserted here. |
+
+**Final expected state:** Permission-denied outcome and any available recovery action are documented. **Cleanup:** Reset browser permission and remove geolocation overrides. **Status:** `NEEDS_VERIFICATION` (permission behavior and expected terminal state are not established).
+**Evidence:** Prior nearby observation did not establish the permission state. **Automation notes:** Use a controlled browser permission fixture; avoid arbitrary sleep-based synchronization.
+
+### NEAR-003 — Nearby page handles unavailable location and retry/recovery
+
+**Functional area:** Nearby locations / geolocation
+**Priority:** P2
+**Type:** Negative / recovery
+**Preconditions:** Controlled environment can simulate unavailable geolocation or a permission request that fails/times out without relying on arbitrary delays.
+**Test data:** `/nearby/lakes`; browser geolocation unavailable or a controlled geolocation error.
+**Initial state:** New anonymous browser context with no valid location result.
+**Template:** Nearby by type. **Sitemap pattern:** `/nearby/{type}`.
+**Related cases:** NEAR-001, NEAR-002.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open the nearby page with location unavailable. | Page shell and controls render; actual loading/error behavior is recorded. |
+| 2 | Observe the location-dependent state through an observable UI/network completion or error. | A terminal state is recorded; expected message and recovery semantics are confirmed before becoming acceptance criteria. |
+| 3 | If a visible retry or permission-change action exists, use it only after restoring a controlled valid test location. | Record whether the page retries and whether results or another terminal state appear; do not assume a retry control exists. |
+
+**Final expected state:** Failure/recovery behavior is documented; no uncontrolled location is sent. **Cleanup:** Reset permission and geolocation override. **Status:** `NEEDS_VERIFICATION` (simulation capability and recovery behavior require confirmation).
+**Evidence:** A loading label was observed for five seconds, but its cause and eventual outcome were unknown. **Automation notes:** Wait for an observable state/event rather than a fixed sleep; do not invent retry UI.
+
+### CAT-002 — Repeated catalog expansion reaches a consistent terminal state
+
+**Functional area:** Category catalog / list boundaries
+**Priority:** P2
+**Type:** Positive / boundary / data consistency
+**Preconditions:** A catalog with multiple batches and a visible “показати ще” control is available.
+**Test data:** `/nature/type/lakes`; record visible cards and URL before each expansion; total content is time-sensitive.
+**Initial state:** Catalog loaded at its initial state in a new anonymous context.
+**Template:** Type catalog. **Sitemap pattern:** `/{category}/type/{type}`.
+**Related cases:** CAT-001, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Record initial card identities, count, and URL. | The baseline list and route are captured without asserting a fixed total. |
+| 2 | Activate “показати ще” repeatedly while the control remains available, recording the list after each action. | Each response is recorded; new cards, count changes, or other behavior are compared with the prior state. |
+| 3 | Compare the accumulated list for duplicate identities and inspect the control after the final available batch. | Duplicate cards and terminal-control behavior are documented; whether duplicates or a particular terminal-control presentation are allowed must be confirmed against requirements. |
+| 4 | Refresh the catalog. | The initial or expanded state after refresh is recorded; persistence of expansion is not assumed. |
+
+**Final expected state:** Batch progression, duplicate behavior, and exhaustion state are documented; no fixed page size or total is asserted. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` for terminal behavior and refresh persistence; one expansion was observed only.
+**Evidence:** One activation expanded the observed list from 15 to 30 without changing URL. **Automation notes:** Avoid fixed record counts and ordering; use card identity/href comparisons.
+
+### REV-002 — Review filters produce a recorded list state and can be reset
+
+**Functional area:** Reviews / filters
+**Priority:** P2
+**Type:** Positive / boundary / state
+**Preconditions:** A review page exposes a filter control and a controlled, inspectable list.
+**Test data:** `/reviews/about/castles`; available filter options must be recorded at execution.
+**Initial state:** Review list loaded in a new anonymous context.
+**Template:** Reviews by type. **Sitemap pattern:** `/reviews/about/{type}`.
+**Related cases:** REV-001, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Inspect the page for visible filter controls without assuming every review page has them. | Available controls and their labels are recorded. |
+| 2 | If a filter is available, select one option in a read-only/approved context. | Resulting list, URL, and selected state are recorded; filter semantics must be confirmed before asserting membership rules. |
+| 3 | If the filtered result is empty, inspect the resulting empty state; otherwise compare visible records with the selected filter using verified data. | Empty/result behavior is documented without assuming exact copy or counts. |
+| 4 | Restore the default filter state if a visible reset/clear action exists. | The resulting state is recorded; persistence and reset behavior are confirmed before being asserted. |
+
+**Final expected state:** Filter options and outcomes documented; no review data is changed. **Cleanup:** Restore default filter state or close the context. **Status:** `NEEDS_VERIFICATION` (filter controls/semantics and data rules have not been established).
+**Evidence:** A review sort menu was observed; filter outcomes were not tested. **Automation notes:** Do not infer filter rules or exact counts from labels alone.
+
+### UI-001 — Directions/map control resolves to the selected location
+
+**Functional area:** Location detail / external navigation
+**Priority:** P2
+**Type:** Positive / data consistency
+**Preconditions:** A sampled location detail exposes a directions or map link; external navigation can be inspected without submitting data.
+**Test data:** `/nature/ikva-river`; visible directions/map affordance observed on the river detail.
+**Initial state:** Anonymous visitor on the location detail page.
+**Template:** Location detail. **Sitemap pattern:** `/{category}/{slug}`.
+**Related cases:** LOC-001, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/nature/ikva-river` and locate the visible directions/map control. | The control is present and its label/href are recorded. |
+| 2 | Inspect its destination without interacting with external accounts or submitting data. | Record whether it opens a map/directions destination and the location information represented; exact provider and URL format are not assumed. |
+| 3 | Return to the source page. | The source location remains identifiable and browser navigation is usable. |
+
+**Final expected state:** Link target and location correspondence are documented for confirmation. **Cleanup:** Close any external tab/window. **Status:** `NOT_EXECUTED`.
+**Evidence:** A directions/map affordance was observed; its destination was not activated during the audit. **Automation notes:** Keep external navigation isolated; do not assert a map vendor, route format, or coordinates without verified requirements.

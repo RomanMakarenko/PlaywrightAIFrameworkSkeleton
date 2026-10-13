@@ -16,15 +16,15 @@
 |---|---|---|---|---|---|---|
 | `/` | Home | Navigation, responsive entry points | NAV-001 | `VERIFIED` representative page | `PARTIALLY_VERIFIED` | No exhaustive links/cards audit. |
 | `/{category}` (6 categories) | Category | Category navigation, breadcrumbs | NAV-002 | `PARTIALLY_VERIFIED` | `PARTIALLY_VERIFIED` | `/nature` and category examples observed; six category pages not individually checked. |
-| `/{category}/type/{type}` (24 patterns in `general.xml`) | Type catalog | Navigation, list/load-more, cards, cross-links | NAV-001, CAT-001, DATA-001 | `/nature/type/lakes` inspected; mobile route reached; load-more expanded once | `PARTIALLY_VERIFIED` at family level; `VERIFIED` only for observed lake load-more action | Other 23 patterns, filters, sort, result consistency, later batches and terminal state not checked. |
-| `/{category}/{slug}` | Place detail | Details, map/contact/reviews, related content, card links | LOC-001, NAV-002, REL-001, REL-002, DATA-001 | Lake `/nature/male-domashnye`, river `/nature/ikva-river`, country complex `/relaxation-and-recreation/haiky-rezort`; other examples in sitemap/historical notes | `PARTIALLY_VERIFIED` | No slug-by-slug crawl. Optional content varies. Recommendation selection rules broadly unknown. |
+| `/{category}/type/{type}` (24 patterns in `general.xml`) | Type catalog | Navigation, list/load-more, cards, cross-links | NAV-001, CAT-001, CAT-002, DATA-001 | `/nature/type/lakes` inspected; mobile route reached; load-more expanded once | `PARTIALLY_VERIFIED` at family level; `VERIFIED` only for observed lake load-more action | Other 23 patterns, filters, sort, result consistency, later batches and terminal state not checked. |
+| `/{category}/{slug}` | Place detail | Details, map/contact/reviews, related content, card links | LOC-001, NAV-002, REL-001, REL-002, DATA-001, UI-001 | Lake `/nature/male-domashnye`, river `/nature/ikva-river`, country complex `/relaxation-and-recreation/haiky-rezort`; other examples in sitemap/historical notes | `PARTIALLY_VERIFIED` | No slug-by-slug crawl. Optional content varies. Recommendation selection rules broadly unknown. |
 | `/collections` | Collection list | Navigation | NAV-003 | Historical sitemap/runbook inventory; not rechecked in this audit | `NOT_VERIFIED` current | Current list contents and filters not checked. |
 | `/collections/{category}` | Category collection list | Collection navigation | NAV-003 | Inventory only | `NOT_VERIFIED` current | Not checked individually. |
 | `/collections/{category}/{slug}` | Collection detail | Item navigation, destination consistency | NAV-003, DATA-001 | Dino-themed parks collection observed | `PARTIALLY_VERIFIED` | Eight cards observed; one item transition checked; count/order can change. |
 | `/nearby` | Nearby base | Geolocation, nearby navigation | NEAR-001 | Inventory from sitemap; not separately inspected in current audit | `NOT_VERIFIED` | Base nearby behavior not checked. |
-| `/nearby/{type}` (24 patterns in `general.xml`) | Nearby by type | Geolocation, filtering, result navigation | NEAR-001 | `/nearby/lakes` observed; filter menu opened | `NEEDS_VERIFICATION` / `PARTIALLY_VERIFIED` | “Визначення геолокації...” persisted for 5 seconds; permission/device context unknown. Other 23 patterns not checked. |
+| `/nearby/{type}` (24 patterns in `general.xml`) | Nearby by type | Geolocation, filtering, result navigation | NEAR-001, NEAR-002, NEAR-003 | `/nearby/lakes` observed; filter menu opened | `NEEDS_VERIFICATION` / `PARTIALLY_VERIFIED` | “Визначення геолокації...” persisted for 5 seconds; permission/device context unknown. Other 23 patterns not checked. |
 | `/reviews` | Review index | Review navigation | REV-001 | Existing inventory/historical evidence; not directly rechecked here | `NOT_VERIFIED` current | Current page behavior not checked. |
-| `/reviews/about/{type}` (24 patterns in `general.xml`) | Reviews by type | Filter/sort, list state | REV-001 | `/reviews/about/castles` inspected; sort menu opened | `PARTIALLY_VERIFIED` | Only one type sample; sorting/filter outcomes and remaining patterns not verified. |
+| `/reviews/about/{type}` (24 patterns in `general.xml`) | Reviews by type | Filter/sort, list state | REV-001, REV-002 | `/reviews/about/castles` inspected; sort menu opened | `PARTIALLY_VERIFIED` | Only one type sample; sorting/filter outcomes and remaining patterns not verified. |
 | `/articles` | Article index | Editorial navigation | ART-001 | Existing inventory/historical evidence; not rechecked here | `NOT_VERIFIED` current | Current list state not checked. |
 | `/articles/{slug}` | Article detail | Internal links, comments/share, related editorial | ART-001 | `/articles/dictionary-of-quest-gamers` inspected | `PARTIALLY_VERIFIED` | Related insertion region had no visible cards; expected behavior unknown. Forms/comments not submitted. |
 | `/publications` | Publication index | Pagination/navigation | ERR-001 | Page 1 and `?page=2` navigation observed | `PARTIALLY_VERIFIED` | Pagination links worked by URL navigation; data/order correctness not established. |
@@ -36,14 +36,15 @@
 | `/pagemap/collections` | Sitemap UI — collections | Route discovery/navigation | — | Existing inventory; not rechecked in current audit | `NOT_VERIFIED` current | Individual links not checked. |
 | `/about`, `/interesting-links`, `/reviews-remove`, `/user-agreement`, `/disclaimer` | Static/help/legal | Footer navigation/content | — | Listed in sitemap from footer; not all separately requested this audit | `NOT_VERIFIED` current | Links' current availability/content unverified. |
 | `/feedback` | Contact/social/RSS info | Navigation, form presence | FORM-001 | Opened; social/contact/RSS info observed; no main feedback form visible | `PARTIALLY_VERIFIED` | RSS not submitted; absence of a main form is only snapshot observation. |
-| `/login` | Login | Authentication/validation | AUTH-001, AUTH-002 | Anonymous login screen loaded | `PARTIALLY_VERIFIED`; login behavior `BLOCKED` | No submission, credentials or authorized test account. |
-| `/register` | Registration | Authentication/forms | AUTH-001 | Registration fields/terms/Google sign-in observed | `PARTIALLY_VERIFIED`; registration journey `BLOCKED` | Form not submitted. Cloudflare Turnstile console messages observed; not a confirmed defect. |
-| `/password/reset` | Password reset | Authentication/forms | AUTH-001 | Reset email field and action observed | `PARTIALLY_VERIFIED`; reset journey `BLOCKED` | No request submitted. |
+| `/login` | Login | Authentication/validation | AUTH-001, AUTH-002, AUTH-003 | Anonymous login screen loaded | `PARTIALLY_VERIFIED`; login behavior `BLOCKED` | No submission, credentials or authorized test account. |
+| `/register` | Registration | Authentication/forms | AUTH-001, AUTH-004 | Registration fields/terms/Google sign-in observed | `PARTIALLY_VERIFIED`; registration journey `BLOCKED` | Form not submitted. Cloudflare Turnstile console messages observed; not a confirmed defect. |
+| `/password/reset` | Password reset | Authentication/forms | AUTH-001, AUTH-005 | Reset email field and action observed | `PARTIALLY_VERIFIED`; reset journey `BLOCKED` | No request submitted. |
 | `/profile`, `/profile/planning`, `/profile/visited`, `/profile/reviews`, `/profile/reviews/replies` | Authenticated profile | Session, saved/visited, reviews | AUTH-002 | Historical RUNBOOK/SITEMAP evidence only; not inspected with a current session | `BLOCKED` current execution | Need authorized non-production account and safe cleanup procedure. |
 | `/users/{id}` and subroutes | Public user profile | Profile/list visibility | AUTH-002 | Dynamic family in sitemap; historical observations are not current proof | `NOT_VERIFIED` current | Dynamic user ID/data; privacy and access requirements unverified. |
 | `/pr` and `/pr/*` | Advertising / owner info | External/business flow | — | Existing sitemap says `/pr/*` disallowed by robots; not explored by task | `NOT_APPLICABLE` to this audit sample | Intentionally excluded. No assertion about live route behavior. |
 | `/bnnr/*` | Banner routes | Not in user journeys | — | Existing sitemap notes robots disallow | `NOT_APPLICABLE` | Not explored. |
-| Search URL/results (not present as established sitemap pattern) | Search | Search, result matching | SRCH-001 | Search entry point seen, input action denied | `BLOCKED` | No query entered; route/query behavior unknown. |
+| Search URL/results (not present as established sitemap pattern) | Search | Search, result matching, empty/input boundaries | SRCH-001, SRCH-002, SRCH-003 | Search entry point seen, input action denied | `BLOCKED` | No query entered; route/query behavior unknown. |
+| Unknown/malformed public path | Route resolution | Not-found/redirect/error handling, refresh/history | ERR-002 | `NOT_VERIFIED` | `NOT_VERIFIED` | Expected status, copy, and redirect behavior are not defined; test is designed but not run. |
 
 ## Sitemap inventory coverage statement
 
@@ -52,8 +53,8 @@
 ## Test case index
 
 - `NAV-001` mobile menu to lakes; `NAV-002` breadcrumb; `NAV-003` collection item navigation.
-- `CAT-001` catalog load-more; `LOC-001` place detail; `REL-001` recommendation navigation; `REL-002` cross-type recommendation consistency.
-- `ART-001` article internal link; `SRCH-001` search (blocked).
-- `AUTH-001` login validation; `AUTH-002` authenticated state lifecycle (blocked).
-- `NEAR-001` nearby/geolocation; `REV-001` review sorting; `FORM-001` RSS validation (blocked).
-- `ERR-001` direct route/refresh; `DATA-001` card-label/destination consistency.
+- `CAT-001` catalog load-more; `CAT-002` repeated load-more/exhaustion boundary; `LOC-001` place detail; `REL-001` recommendation navigation; `REL-002` cross-type recommendation consistency.
+- `ART-001` article internal link; `SRCH-001` search (blocked); `SRCH-002` no-results query (blocked); `SRCH-003` empty/whitespace/punctuation input (blocked).
+- `AUTH-001` empty login validation; `AUTH-002` authenticated state lifecycle (blocked); `AUTH-003` invalid/unrecognized login input (blocked); `AUTH-004` registration validation (blocked); `AUTH-005` password-reset safety (blocked).
+- `NEAR-001` nearby/geolocation; `NEAR-002` denied permission; `NEAR-003` unavailable location/recovery; `REV-001` review sorting; `REV-002` review filters; `FORM-001` RSS validation (blocked).
+- `ERR-001` known-route refresh; `ERR-002` unknown/malformed route; `DATA-001` card-label/destination consistency; `UI-001` directions/map destination.

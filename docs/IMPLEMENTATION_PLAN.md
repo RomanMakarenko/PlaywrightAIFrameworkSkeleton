@@ -31,8 +31,8 @@ This plan follows the broad organization of the Java framework plan while adapti
 
 ### Phase 0 — Prerequisites and Current-State Verification
 
-- [ ] Confirm supported Node.js and npm versions for the project and document them.
-- [ ] Verify the root lockfile, installed `@playwright/test` version, and installed browser binaries; use the root project only, not the nested reference project.
+- [x] Confirm supported Node.js and npm versions for the project and document them.
+- [x] Verify the root lockfile, installed `@playwright/test` version, and installed browser binaries; use the root project only, not the nested reference project.
 - [x] Confirm the existing config, E2E tests, ESLint setup, requested directory layout, and GitHub Actions workflow.
 - [x] Record the module-format decision based on the existing CommonJS package setting and the chosen TypeScript configuration.
 
@@ -91,7 +91,7 @@ This plan follows the broad organization of the Java framework plan while adapti
 - [ ] Organize Playwright projects, tags, or scripts so API, smoke, E2E, integration, and visual checks can be selected intentionally.
 - [ ] Use the existing Chromium, Firefox, and WebKit projects according to the value and runtime cost of each suite; do not require every suite to run on every browser by default.
 - [ ] Choose local and CI worker/retry settings based on observed stability and runtime. Preserve test independence instead of using retries to conceal flakiness.
-- [ ] Document commands for a single test, headed/debug runs, smoke checks, broader regression, and cross-browser runs.
+- [x] Document commands for a single test, headed/debug runs, smoke checks, broader regression, and cross-browser runs.
 
 **Acceptance checks:** Each documented command selects the expected suite/project; smoke checks remain suitable for fast feedback; broader browser coverage can be run deliberately; parallel runs do not introduce shared-state failures.
 
@@ -111,7 +111,7 @@ This plan follows the broad organization of the Java framework plan while adapti
 - [x] Extend the existing workflow to run install, lint, typecheck, and a fast smoke suite for pull requests and relevant branch pushes.
 - [x] Define a broader manual or scheduled regression run, adding cross-browser coverage as runtime and suite stability allow.
 - [x] Run tests in the version-matched Docker environment established in Phase 7, or document why a workflow uses an equivalent pinned environment.
-- [ ] Upload the HTML report and relevant `test-results/` diagnostics after failures and cancellations, with bounded retention and no credential/auth-state files.
+- [x] Upload the HTML report and relevant `test-results/` diagnostics after failures and cancellations, with bounded retention and no credential/auth-state files — accepted by the user with cancellation-run verification waived; see the 2026-10-14 Runbook entry.
 - [x] Use GitHub Actions secrets/variables for protected configuration and grant workflows only the permissions they need.
 
 **Acceptance checks:** Pull requests receive lint, typecheck, and smoke feedback; broader regression can be launched intentionally; failed/cancelled test jobs still publish useful artifacts; uploaded artifacts contain no secrets or storage state.

@@ -1,6 +1,6 @@
 # Functional E2E Test Case Catalog — Funtime
 
-**Designed:** 2026-10-13. Manual test specifications only; none were executed as a test suite. The catalog currently contains 16 existing cases plus the additional cases below. Production cases involving submissions or persistent changes require an approved test environment/account and rollback plan.
+**Designed:** 2026-10-13. The catalog contains manual specifications; its per-case status fields track completion of those manual specifications. Automated execution and its narrower scope are recorded in the mapping at the end of this document. Production cases involving submissions or persistent changes require an approved test environment/account and rollback plan.
 
 ## Execution-state meanings
 
@@ -189,7 +189,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 4 | Use browser Back. | Browser returns to the article route. |
 
 **Final expected state:** Article route restored after following and returning from its internal link. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
-**Evidence:** Article content and internal category links observed; this specific link activation was not recorded. **Automation notes:** Pin the actual href when converting to automation; no assumed link target is supplied here.
+**Evidence:** Article content and internal category links observed; this specific link activation was not recorded before automation. **Automation notes:** Implemented in `tests/e2e/public-journeys.spec.ts`. The sampled link has `target="_blank"`; automation verifies the popup destination and confirms the article remains open. This is a verified clarification of the sampled link behavior, not a universal rule for article links.
 
 ## Search and account journeys
 
@@ -587,4 +587,24 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 3 | Return to the source page. | The source location remains identifiable and browser navigation is usable. |
 
 **Final expected state:** Link target and location correspondence are documented for confirmation. **Cleanup:** Close any external tab/window. **Status:** `NOT_EXECUTED`.
-**Evidence:** A directions/map affordance was observed; its destination was not activated during the audit. **Automation notes:** Keep external navigation isolated; do not assert a map vendor, route format, or coordinates without verified requirements.
+**Evidence:** A directions/map affordance was observed; its destination was not activated during the audit. **Automation notes:** Implemented in `tests/e2e/public-journeys.spec.ts`; it checks the observed directions URL shape only. Keep external navigation isolated; do not assert a map vendor, route format, or coordinates as a product requirement.
+
+## Automated implementation and execution mapping
+
+The status fields in the cases above continue to describe the manual catalog scenarios; this mapping records the automated subset and actual execution. A passing automated subset does not complete every step or acceptance criterion in a broader manual case.
+
+| Case | Automated coverage | Last recorded execution |
+|---|---|---|
+| NAV-001 | Mobile menu navigation and Back | Chromium: PASS |
+| CAT-001 | One additional lake-card batch and unchanged URL | Chromium: PASS |
+| LOC-001 | River identity, breadcrumb href, directions control, observed sections, refresh | Chromium: PASS |
+| REL-001 | Recommendation href/destination heading and Back | Chromium: PASS |
+| NAV-003 | DinoSofia collection link and destination heading | Chromium: PASS |
+| ART-001 | Quest-category link opens popup; destination heading and source article remain available | Chromium: PASS |
+| DATA-001 | One lake card label/href matches destination heading | Chromium: PASS |
+| UI-001 | River directions control has an observed Google Maps directions URL | Chromium: PASS |
+| REV-001 | Partial: sort menu opens and exposes the four observed choices; selection/order behavior is not asserted | Chromium: PASS (2026-10-13) |
+| ERR-001 | Three representative known routes load directly and after refresh | Chromium: PASS |
+| AUTH-002 | Positive login followed by read-only planning-page access; does not implement saved/visited transitions, cleanup, or logout | Chromium: SKIPPED; `APP_EMAIL`/`APP_PASSWORD` were not available to the test process |
+
+Public journeys were executed only in Chromium; Firefox and WebKit were discovered but not run. The authenticated case is an intentionally limited subset of `AUTH-002`, not completion of its state lifecycle. The manual statuses above remain unchanged.

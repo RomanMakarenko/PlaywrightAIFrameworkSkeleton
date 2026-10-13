@@ -126,3 +126,12 @@ Chronological, append-only record of meaningful project checkpoints: what change
 - **Audit limits:** The cross-Page-Object inventory was source-only; no live DOM confirmation was performed. No profile data, forms, or state-changing controls were accessed. The unrelated `AuthPages.ts:23` source anomaly was not changed.
 - **Commands / status:** `npx tsc --noEmit` — PASS; `npx eslint src/components/ProfileReviewNavigationComponent.ts src/pages/ProfilePages.ts src/components/index.ts` — PASS; `npx playwright test --list` — PASS (6 existing tests discovered); `git diff --check` — PASS. Full Playwright tests — NOT RUN; the existing suite targets `playwright.dev`, not Funtime.
 - **Handoff:** `ProfileReviewsPage` and `ProfileReviewRepliesPage` retain their prior tab getters and now expose `reviewNavigation`. Reinspect source/live DOM if the Funtime profile navigation changes.
+
+### 2026-10-13 — Expand Funtime manual test scenarios
+
+- **Session / scope:** Broaden the manual functional catalog with negative, boundary, permission, and recovery scenarios; synchronize route/template references.
+- **Changed artifacts:** `docs/web/FUNCTIONAL_TEST_CASES.md` (11 additional cases, bringing the catalog to 27); `docs/web/SITEMAP_TEST_TRACEABILITY.md`; `docs/web/PAGE_TEMPLATE_COVERAGE.md`; this RUNBOOK entry.
+- **Reason:** Address identified coverage gaps in authentication/forms, search, unknown routes, geolocation, catalog exhaustion, review filters, and directions links while retaining explicit unknowns and safe-execution prerequisites.
+- **Commands / status:** `python3 -I` inline documentation consistency check — PASS (27 case headings, all IDs unique, every ID referenced in traceability and page-template coverage); `git diff --check` — PASS. Playwright/live-site tests — NOT RUN; this change specifies manual cases only, and some scenarios require explicit test-environment authorization and safe test data.
+- **Blockers / unknowns:** Product behavior remains unverified for validation messages, search matching/empty states, unknown-route responses, geolocation permission/recovery, catalog terminal/persistence behavior, and review filter semantics. New cases retain `BLOCKED` or `NEEDS_VERIFICATION` statuses where applicable; no defect was inferred.
+- **Handoff:** Review the new cases with product owners or in an authorized non-production environment before treating uncertain expected outcomes as acceptance criteria or automating state-changing flows.

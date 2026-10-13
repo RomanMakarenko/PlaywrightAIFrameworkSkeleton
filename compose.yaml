@@ -8,6 +8,7 @@ services:
       APP_EMAIL:
       APP_PASSWORD:
       FUNTIME_BASE_URL:
+      CI:
       HOME: /tmp
       PLAYWRIGHT_HTML_REPORT: /app/playwright-report/html
       PLAYWRIGHT_TEST_RESULTS: /app/test-results/results

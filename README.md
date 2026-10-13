@@ -6,7 +6,7 @@ A starter skeleton for UI, API, end-to-end, and other automated checks using **P
 
 ## Prerequisites
 
-- Node.js 24.x LTS and npm (the major version is pinned in `.nvmrc`).
+- Node.js 24.x LTS with the npm version bundled with that Node.js distribution (`.nvmrc` selects the Node.js major version; npm is not pinned separately).
 - Docker Engine with the Compose plugin, for the pinned container runtime.
 - Internet access to install dependencies and run the read-only Funtime E2E and HTTP smoke checks.
 
@@ -37,8 +37,23 @@ npm run test:list
 # Run the focused, read-only HTTP smoke check in Chromium
 npm run test:smoke
 
+# Run one test by its stable test ID in Chromium
+npm test -- --grep "NAV-001" --project=chromium
+
+# Run tests in a visible Chromium browser
+npm test -- --project=chromium --headed
+
+# Debug tests with Playwright Inspector (headed, single worker)
+npm test -- --project=chromium --debug
+
+# Run the full regression suite in all configured browser projects
+npm test
+
 # Run one browser project
 npm test -- --project=chromium
+
+# Explicitly run all configured browser projects
+npm test -- --project=chromium --project=firefox --project=webkit
 
 # Start Playwright's interactive UI mode
 npx playwright test --ui

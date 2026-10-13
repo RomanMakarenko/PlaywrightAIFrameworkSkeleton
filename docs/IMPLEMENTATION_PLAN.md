@@ -2,9 +2,9 @@
 
 ## Status & Context
 
-**Status:** Roadmap for the framework skeleton; the phases below are planned work and are not marked complete unless stated in the current-state notes.
+**Status:** Audited on 2026-10-13 against the current repository. Individual checkboxes below are marked only where implementation evidence exists; no phase is complete unless all its criteria and acceptance checks are satisfied.
 
-The repository already has an initial Playwright Test setup: `@playwright/test` 1.64.x is declared, `playwright.config.ts` defines Chromium, Firefox, and WebKit projects, a sample test exists, the requested `src/` and `tests/` directories have been created, ESLint is configured, and a GitHub Actions workflow installs browsers and runs the tests. The root package does not yet include the TypeScript compiler or a `tsconfig.json`/typecheck script. The current package declares CommonJS, so module settings must be kept consistent rather than changed incidentally.
+The framework has a strict TypeScript 6 toolchain (`tsconfig.json`, Node16 module resolution), focused root npm scripts, a typed test-scoped `CatalogPage` fixture, and Funtime E2E plus read-only HTTP smoke coverage. Playwright is configured for Chromium, Firefox, and WebKit; CI runs the full Playwright suite and uploads the HTML report. There are no API contract tests/client, visual tests, Docker setup, or focused smoke/regression CI jobs. The current `.github/workflows/playwright.yml` uses the floating Node `lts/*` selector. See the checklists below for the verified partial implementation and remaining work.
 
 This plan follows the broad organization of the Java framework plan while adapting it to this repository's Node.js, TypeScript, and Playwright Test stack. It is a roadmap, not authorization to implement every item at once.
 
@@ -19,7 +19,7 @@ This plan follows the broad organization of the Java framework plan while adapti
 
 ## Risks & Notes
 
-- **Toolchain gap:** TypeScript source folders exist, but the root package currently lacks the `typescript` compiler, `tsconfig.json`, and typecheck scripts. Establish these before depending on typed framework code.
+- **Toolchain follow-up:** Root scripts now expose typecheck, lint, test execution, discovery, and a Chromium smoke selection. The reported ESLint issue in `src/pages/AuthPages.ts` has been corrected; rerun the checks after future toolchain changes. Phase 1 acceptance still depends on reproducible-install and supported-runtime evidence.
 - **Version drift:** The Docker image bundles browser binaries for a specific Playwright release. A mismatch with the package-lock version can cause missing or incompatible browsers; verify the versions together whenever either changes.
 - **CommonJS/module consistency:** The current `package.json` declares `"type": "commonjs"`. Keep TypeScript, ESLint, and Playwright config module behavior aligned; change module format only as a deliberate, verified decision.
 - **Parallelism and data collisions:** Tests must be independently runnable. Shared accounts or mutable server-side data can make parallel execution flaky; isolate data and register cleanup where the system under test persists writes.
@@ -33,53 +33,53 @@ This plan follows the broad organization of the Java framework plan while adapti
 
 - [ ] Confirm supported Node.js and npm versions for the project and document them.
 - [ ] Verify the root lockfile, installed `@playwright/test` version, and installed browser binaries; use the root project only, not the nested reference project.
-- [ ] Confirm the existing config, sample test, ESLint setup, requested directory layout, and GitHub Actions workflow.
-- [ ] Record the module-format decision based on the existing CommonJS package setting and the chosen TypeScript configuration.
+- [x] Confirm the existing config, E2E tests, ESLint setup, requested directory layout, and GitHub Actions workflow.
+- [x] Record the module-format decision based on the existing CommonJS package setting and the chosen TypeScript configuration.
 
 **Acceptance checks:** A clean checkout can use `npm ci`; the documented Node/npm requirements are accurate; the Playwright package and browser installation are known and mutually compatible.
 
 ### Phase 1 — TypeScript Toolchain and npm Scripts
 
-- [ ] Add TypeScript and any required type packages to the root project; update the lockfile through npm.
-- [ ] Add a `tsconfig.json` with strict type checking and include/exclude paths appropriate for framework code, tests, generated reports, and references.
-- [ ] Configure TypeScript module resolution consistently with the chosen CommonJS/module decision and the existing Playwright config.
-- [ ] Add focused npm scripts for test execution, linting, and `tsc --noEmit`; add formatting only if the project adopts a formatter.
-- [ ] Ensure ESLint parses and checks the intended TypeScript files without linting `reference/**`.
+- [x] Add TypeScript and any required type packages to the root project; update the lockfile through npm.
+- [x] Add a `tsconfig.json` with strict type checking and include/exclude paths appropriate for framework code, tests, generated reports, and references.
+- [x] Configure TypeScript module resolution consistently with the chosen CommonJS/module decision and the existing Playwright config.
+- [x] Add focused npm scripts for test execution, linting, and `tsc --noEmit`; add formatting only if the project adopts a formatter.
+- [x] Ensure ESLint parses and checks the intended TypeScript files without linting `reference/**`.
 
 **Acceptance checks:** `npm ci`, typecheck, and ESLint complete successfully from the repository root; reference repositories remain excluded from root linting and typechecking.
 
 ### Phase 2 — Configuration, Environment, and Project Layout
 
-- [ ] Define the responsibilities and naming conventions for `src/pages`, `components`, `fixtures`, `api`, `models`, `data`, `config`, and `utils`, plus `tests/e2e`, `api`, `integration`, and `visual`.
-- [ ] Add typed configuration for base URLs and any required environment selection; validate required values at startup with actionable errors.
-- [ ] Provide a safe `.env.example` and ignore real local environment files. Use shell/CI environment variables for secrets; do not place secret values in defaults or examples.
-- [ ] Configure `baseURL` and other shared options in `playwright.config.ts` where appropriate, rather than duplicating them in tests.
+- [x] Define the responsibilities and naming conventions for `src/pages`, `components`, `fixtures`, `api`, `models`, `data`, `config`, and `utils`, plus `tests/e2e`, `api`, `integration`, and `visual`.
+- [x] Add typed configuration for base URLs and any required environment selection; validate required values at startup with actionable errors.
+- [x] Provide a safe `.env.example` and ignore real local environment files. Use shell/CI environment variables for secrets; do not place secret values in defaults or examples.
+- [x] Configure `baseURL` and other shared options in `playwright.config.ts` where appropriate, rather than duplicating them in tests.
 
 **Acceptance checks:** Configuration uses a documented local default or validated environment value; missing required settings fail clearly; no real credentials are committed; Playwright discovers tests in the intended directories.
 
 ### Phase 3 — Test Lifecycle and Native Fixtures
 
-- [ ] Establish the project's custom `test` entry point using typed `test.extend<...>()` fixtures only where a reusable dependency is needed.
-- [ ] Construct page objects, components, API clients, or test-data helpers inside fixtures and expose them to tests by fixture name.
-- [ ] Prefer built-in test-scoped `page`, `context`, and `request` fixtures for per-test isolation. Use worker-scoped fixtures only for safe, read-only or deliberately shared setup, with teardown and parallelism implications documented.
-- [ ] Keep fixture dependency chains small and make teardown/cleanup explicit. Do not manually create a global browser/page singleton or duplicate Playwright's normal context lifecycle.
+- [x] Establish the project's custom `test` entry point using typed `test.extend<...>()` fixtures only where a reusable dependency is needed.
+- [x] Construct page objects, components, API clients, or test-data helpers inside fixtures and expose them to tests by fixture name.
+- [x] Prefer built-in test-scoped `page`, `context`, and `request` fixtures for per-test isolation. Use worker-scoped fixtures only for safe, read-only or deliberately shared setup, with teardown and parallelism implications documented.
+- [x] Keep fixture dependency chains small and make teardown/cleanup explicit. Do not manually create a global browser/page singleton or duplicate Playwright's normal context lifecycle.
 - [ ] Keep tests focused on business behavior; avoid embedding selectors, endpoint construction, or environment parsing in test bodies.
 
 **Acceptance checks:** A typed custom fixture compiles and can be used from a spec; parallel tests receive isolated test-scoped state; any worker-scoped resource is shared only by intentional design and cleans up correctly.
 
 ### Phase 4 — Reusable UI/API Abstractions and Representative Journeys
 
-- [ ] Add Page Objects for meaningful pages and Component Objects for genuinely reused UI regions; keep locators with the objects and expose business-level actions.
+- [x] Add Page Objects for meaningful pages and Component Objects for genuinely reused UI regions; keep locators with the objects and expose business-level actions.
 - [ ] Add typed API clients/services around Playwright's `APIRequestContext` only where shared request behavior or domain operations justify the abstraction.
 - [ ] Define request/response models and keep API assertions focused on status and contract-relevant fields.
 - [ ] Add representative tests: a UI journey in `tests/e2e`, isolated endpoint coverage in `tests/api`, and cross-layer or boundary checks in `tests/integration` when they provide distinct value.
-- [ ] Use role-, label-, and other user-facing locators where possible, plus Playwright's web-first assertions and auto-waiting; avoid fixed sleeps.
+- [x] Use role-, label-, and other user-facing locators where possible, plus Playwright's web-first assertions and auto-waiting; avoid fixed sleeps.
 
 **Acceptance checks:** At least one representative UI journey and one API request/response assertion run successfully; test code uses reusable abstractions where appropriate without hiding assertions or creating unnecessary framework layers.
 
 ### Phase 5 — Test Data, Isolation, and Diagnostics
 
-- [ ] Add typed data factories only for data that benefits from consistent defaults, overrides, or unique values.
+- [x] Add typed data factories only for data that benefits from consistent defaults, overrides, or unique values.
 - [ ] Make tests independent and safe to retry/run in parallel; clean up data when the target persists changes, preferably through explicit fixture teardown.
 - [ ] Configure HTML reporting and failure diagnostics (trace, screenshot, and video) with clear retention and CI upload behavior; avoid collecting more sensitive data than needed.
 - [ ] Define visual snapshot conventions in `tests/visual`, including a stable baseline-generation environment and a review/update process. Keep visual tests limited to intentional rendering checks rather than duplicating all E2E coverage.

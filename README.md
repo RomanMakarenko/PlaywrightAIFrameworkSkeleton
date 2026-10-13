@@ -7,7 +7,7 @@ A starter skeleton for UI, API, end-to-end, and other automated checks using **P
 ## Prerequisites
 
 - Node.js (the current LTS release is recommended) and npm.
-- Internet access to install Playwright browsers and run the existing sample tests, which visit `https://playwright.dev/`.
+- Internet access to install Playwright browsers and run the read-only Funtime E2E and HTTP smoke checks.
 
 ## Installation
 
@@ -28,19 +28,22 @@ npx playwright install --with-deps
 
 ```bash
 # Run all tests across the configured browser projects
-npx playwright test
+npm test
 
 # List the tests Playwright discovers
-npx playwright test --list
+npm run test:list
+
+# Run the focused, read-only HTTP smoke check in Chromium
+npm run test:smoke
 
 # Run one browser project
-npx playwright test --project=chromium
+npm test -- --project=chromium
 
 # Start Playwright's interactive UI mode
 npx playwright test --ui
 ```
 
-The current sample in `tests/example.spec.ts` checks the Playwright documentation site at `playwright.dev`. It does not require a local web server. `baseURL` and `webServer` are not currently configured in `playwright.config.ts`.
+The E2E suite includes read-only public Funtime journeys and an HTTP availability smoke check; it does not require a local web server. Playwright's `baseURL` defaults to `https://funtime.com.ua` and can be overridden with `FUNTIME_BASE_URL`.
 
 After running tests, open the HTML report with:
 
@@ -66,19 +69,12 @@ The CLI writes browser-session output under `.playwright-cli/`, which is ignored
 
 ## Type checking and linting
 
-Strict TypeScript checking and `noEmit` are enabled:
+Strict TypeScript checking and `noEmit` are enabled. Run type checking and linting with:
 
 ```bash
-npx tsc --noEmit
+npm run typecheck
+npm run lint
 ```
-
-Run ESLint against source, tests, and the Playwright configuration with:
-
-```bash
-npx eslint src tests playwright.config.ts
-```
-
-There are currently no npm scripts in `package.json`, so use the CLI commands directly instead of commands such as `npm test`.
 
 ## Environment configuration
 
@@ -90,7 +86,7 @@ cp .env.example .env
 
 Replace placeholders with your own local values. Do not commit `.env` or publish its contents. `.gitignore` ignores local `.env` files while keeping `.env.example` available.
 
-**Important:** dotenv loading is currently commented out in `playwright.config.ts`. Copying `.env` alone will not automatically load its variables into the test process. The current sample test does not require `.env`; for other scenarios, pass the needed variables to the test process or configure CI secrets. Never print secrets in logs, reports, or artifacts.
+**Important:** dotenv loading is disabled. Copying `.env` alone will not automatically load its variables into the test process; pass needed values through the process environment or CI. `FUNTIME_BASE_URL` is optional and defaults to `https://funtime.com.ua`; if supplied, it must be an HTTP(S) origin without a path. Never print secrets in logs, reports, or artifacts.
 
 ## Repository structure
 
@@ -112,7 +108,6 @@ tests/
   integration/  # integration tests
   testdata/     # static test inputs
   visual/       # visual checks
-  example.spec.ts
 ```
 
 Keep reusable framework code in `src/` and test-specific scenarios and files in `tests/`. Some directories are scaffolding for future work; their presence does not mean the corresponding integration is configured or complete.

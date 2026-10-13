@@ -1,5 +1,5 @@
 export { AuthPage, LoginPage, PasswordResetPage, RegistrationPage } from './AuthPages.js';
-export { BasePage, FUNTIME_ORIGIN } from './BasePage.js';
+export { BasePage } from './BasePage.js';
 export { CatalogPage } from './CatalogPage.js';
 export { CollectionDetailPage, CollectionListingPage } from './CollectionPages.js';
 export { EditorialDetailPage, EditorialListingPage } from './EditorialPages.js';

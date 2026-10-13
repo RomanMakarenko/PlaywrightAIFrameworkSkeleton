@@ -1,8 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { SiteFooterComponent } from '../components/SiteFooterComponent.js';
 import { SiteNavigationComponent } from '../components/SiteNavigationComponent.js';
-
-export const FUNTIME_ORIGIN = 'https://funtime.com.ua';
+import { FUNTIME_BASE_URL } from '../config/testConfig.js';
 
 export abstract class BasePage {
   readonly main: Locator;
@@ -20,9 +19,9 @@ export abstract class BasePage {
   }
 
   async open(path: string): Promise<void> {
-    const url = new URL(path, FUNTIME_ORIGIN);
+    const url = new URL(path, FUNTIME_BASE_URL);
 
-    if (url.origin !== FUNTIME_ORIGIN) {
+    if (url.origin !== FUNTIME_BASE_URL) {
       throw new Error(`Expected a Funtime path, received: ${path}`);
     }
 

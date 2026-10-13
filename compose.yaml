@@ -1,0 +1,17 @@
+services:
+  playwright:
+    build: .
+    init: true
+    user: "${PLAYWRIGHT_UID:-1000}:${PLAYWRIGHT_GID:-1000}"
+    shm_size: 1gb
+    environment:
+      APP_EMAIL:
+      APP_PASSWORD:
+      FUNTIME_BASE_URL:
+      CI:
+      HOME: /tmp
+      PLAYWRIGHT_HTML_REPORT: /app/playwright-report/html
+      PLAYWRIGHT_TEST_RESULTS: /app/test-results/results
+    volumes:
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results

@@ -6,8 +6,9 @@ A starter skeleton for UI, API, end-to-end, and other automated checks using **P
 
 ## Prerequisites
 
-- Node.js (the current LTS release is recommended) and npm.
-- Internet access to install Playwright browsers and run the read-only Funtime E2E and HTTP smoke checks.
+- Node.js 24.x LTS and npm (the major version is pinned in `.nvmrc`).
+- Docker Engine with the Compose plugin, for the pinned container runtime.
+- Internet access to install dependencies and run the read-only Funtime E2E and HTTP smoke checks.
 
 ## Installation
 
@@ -45,10 +46,30 @@ npx playwright test --ui
 
 The E2E suite includes read-only public Funtime journeys and an HTTP availability smoke check; it does not require a local web server. Playwright's `baseURL` defaults to `https://funtime.com.ua` and can be overridden with `FUNTIME_BASE_URL`.
 
-After running tests, open the HTML report with:
+## Run tests in Docker
+
+The Docker image is pinned to the Playwright version in `package-lock.json`. From the repository root, build it and run either the focused smoke check or the full browser suite:
 
 ```bash
+mkdir -p playwright-report test-results
+# macOS only, if Docker Desktop's CLI is not already on PATH
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+export PLAYWRIGHT_UID="$(id -u)" PLAYWRIGHT_GID="$(id -g)"
+docker compose --env-file /dev/null build
+docker compose --env-file /dev/null run --rm playwright npm run test:smoke
+docker compose --env-file /dev/null run --rm playwright npm test
+```
+
+Compose mounts `playwright-report/` and `test-results/` back to the host; container output is placed in their `html/` and `results/` subdirectories so Playwright can clean each output directory without trying to remove a mounted directory. `--env-file /dev/null` prevents Compose from implicitly reading a local `.env`; variables explicitly exported in the invoking process (such as `FUNTIME_BASE_URL`, `APP_EMAIL`, and `APP_PASSWORD`) are passed to the test container at runtime only. Do not put credentials in the Docker build context or image. The authenticated test is skipped when credentials are absent. Both suites use the public Funtime site and require network access.
+
+After running tests, open the HTML report with the matching path:
+
+```bash
+# Default output from a local (non-Docker) run
 npx playwright show-report
+
+# HTML report from a Docker run
+npx playwright show-report playwright-report/html
 ```
 
 The Playwright configuration includes Chromium, Firefox, and WebKit projects. It uses the HTML reporter and collects a trace on the first retry.
@@ -116,7 +137,7 @@ Keep reusable framework code in `src/` and test-specific scenarios and files in 
 
 ## CI
 
-The GitHub Actions workflow in `.github/workflows/playwright.yml` runs on pushes and pull requests targeting `main` or `master`. It installs dependencies and browsers, runs `npx playwright test`, and uploads `playwright-report/` as an artifact. In CI, Playwright uses two retries and one worker.
+The GitHub Actions workflow in `.github/workflows/playwright.yml` runs on pushes and pull requests targeting `main` or `master`. It uses Node 24 for lint/typecheck, builds the version-matched Playwright Docker image for smoke and full-suite runs, and uploads `playwright-report/` and `test-results/` as an artifact. In CI, Playwright uses two retries and one worker.
 
 ## Further documentation
 

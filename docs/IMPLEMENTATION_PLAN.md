@@ -4,7 +4,7 @@
 
 **Status:** Audited on 2026-10-13 against the current repository. Individual checkboxes below are marked only where implementation evidence exists; no phase is complete unless all its criteria and acceptance checks are satisfied.
 
-The framework has a strict TypeScript 6 toolchain (`tsconfig.json`, Node16 module resolution), focused root npm scripts, a typed test-scoped `CatalogPage` fixture, and Funtime E2E plus read-only HTTP smoke coverage. Playwright is configured for Chromium, Firefox, and WebKit; CI runs the full Playwright suite and uploads the HTML report. There are no API contract tests/client, visual tests, Docker setup, or focused smoke/regression CI jobs. The current `.github/workflows/playwright.yml` uses the floating Node `lts/*` selector. See the checklists below for the verified partial implementation and remaining work.
+The framework has a strict TypeScript 6 toolchain (`tsconfig.json`, Node16 module resolution), focused root npm scripts, a typed test-scoped `CatalogPage` fixture, and Funtime E2E plus read-only HTTP smoke coverage. Playwright is configured for Chromium, Firefox, and WebKit. The Playwright 1.64.0 Docker image built successfully; the Chromium smoke and full cross-browser suite ran in the container, with reports/results persisted to host mounts. CI is configured to use that image and uploads the HTML report and test results. There are no API contract tests/client or visual tests. See the checklists below for verified coverage and remaining work.
 
 This plan follows the broad organization of the Java framework plan while adapting it to this repository's Node.js, TypeScript, and Playwright Test stack. It is a roadmap, not authorization to implement every item at once.
 
@@ -97,12 +97,12 @@ This plan follows the broad organization of the Java framework plan while adapti
 
 ### Phase 7 — Docker Runtime
 
-- [ ] Add a root Dockerfile based on the official Playwright image for the exact Playwright version installed by `npm ci`; keep the image tag and root dependency/lockfile in sync.
-- [ ] Add a `.dockerignore` that excludes local dependencies, Git metadata, real environment files, auth state, and unrelated generated output.
-- [ ] Run the test process as a non-root user where supported by the selected image and browser execution model.
-- [ ] Add a Docker Compose service or documented equivalent for running tests locally, passing environment values at runtime and mounting `playwright-report/` and `test-results/` to the host.
-- [ ] Ensure the image does not copy secrets or generated authentication state; document safe handling of any required local credentials.
-- [ ] Use the same version-matched container for CI test execution where practical, so local and CI browser/system dependencies are consistent.
+- [x] Add a root Dockerfile based on the official Playwright image for the exact Playwright version installed by `npm ci`; keep the image tag and root dependency/lockfile in sync.
+- [x] Add a `.dockerignore` that excludes local dependencies, Git metadata, real environment files, auth state, and unrelated generated output.
+- [x] Run the test process as a non-root user where supported by the selected image and browser execution model.
+- [x] Add a Docker Compose service or documented equivalent for running tests locally, passing environment values at runtime and mounting `playwright-report/` and `test-results/` to the host.
+- [x] Ensure the image does not copy secrets or generated authentication state; document safe handling of any required local credentials.
+- [x] Use the same version-matched container for CI test execution where practical, so local and CI browser/system dependencies are consistent.
 
 **Acceptance checks:** From a clean checkout, the documented Docker command builds/runs a smoke suite; the Playwright package version exactly matches the image's bundled browser version; reports and failure artifacts persist on the host; secrets and auth state are absent from the image layers.
 
@@ -110,9 +110,9 @@ This plan follows the broad organization of the Java framework plan while adapti
 
 - [x] Extend the existing workflow to run install, lint, typecheck, and a fast smoke suite for pull requests and relevant branch pushes.
 - [x] Define a broader manual or scheduled regression run, adding cross-browser coverage as runtime and suite stability allow.
-- [ ] Run tests in the version-matched Docker environment established in Phase 7, or document why a workflow uses an equivalent pinned environment.
+- [x] Run tests in the version-matched Docker environment established in Phase 7, or document why a workflow uses an equivalent pinned environment.
 - [ ] Upload the HTML report and relevant `test-results/` diagnostics after failures and cancellations, with bounded retention and no credential/auth-state files.
-- [ ] Use GitHub Actions secrets/variables for protected configuration and grant workflows only the permissions they need.
+- [x] Use GitHub Actions secrets/variables for protected configuration and grant workflows only the permissions they need.
 
 **Acceptance checks:** Pull requests receive lint, typecheck, and smoke feedback; broader regression can be launched intentionally; failed/cancelled test jobs still publish useful artifacts; uploaded artifacts contain no secrets or storage state.
 

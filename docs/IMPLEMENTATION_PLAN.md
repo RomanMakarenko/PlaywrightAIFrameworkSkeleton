@@ -109,7 +109,7 @@ This plan follows the broad organization of the Java framework plan while adapti
 ### Phase 8 — GitHub Actions CI and Artifact Retention
 
 - [x] Extend the existing workflow to run install, lint, typecheck, and a fast smoke suite for pull requests and relevant branch pushes.
-- [ ] Define a broader manual or scheduled regression run, adding cross-browser coverage as runtime and suite stability allow.
+- [x] Define a broader manual or scheduled regression run, adding cross-browser coverage as runtime and suite stability allow.
 - [ ] Run tests in the version-matched Docker environment established in Phase 7, or document why a workflow uses an equivalent pinned environment.
 - [ ] Upload the HTML report and relevant `test-results/` diagnostics after failures and cancellations, with bounded retention and no credential/auth-state files.
 - [ ] Use GitHub Actions secrets/variables for protected configuration and grant workflows only the permissions they need.

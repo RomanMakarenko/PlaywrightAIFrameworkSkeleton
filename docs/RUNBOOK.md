@@ -191,3 +191,13 @@ Chronological, append-only record of meaningful project checkpoints: what change
 - **Commands / status:** `git diff --check` — PASS; `ruby -e 'require "yaml"; YAML.load_file(".github/workflows/playwright.yml")'` — PASS (workflow YAML parsed). Playwright tests — NOT RUN (workflow-only change). GitHub Actions failed-run and canceled-run artifact behavior/content review — NOT RUN (no Actions run was initiated); retention and artifact contents therefore remain unverified in GitHub.
 - **Security / limitations:** The uploaded directories do not include the configured `playwright/.auth/` path or root environment files; the authenticated test still disables trace, screenshot, and video. Test results and reports can still contain page or request data, so inspect actual artifacts before treating their contents as safe.
 - **Handoff:** Verify both failed and canceled runs in an authorized GitHub Actions execution, confirm useful artifacts are present with the 14-day retention, and inspect their contents before checking Phase 8 criterion 114. Keep Phase 5 criterion 84 unchecked until its broader acceptance checks are satisfied.
+
+### 2026-10-13 — Add manual cross-browser regression trigger
+
+- **Session / scope:** Enable intentional manual runs of the existing broader regression suite by adding GitHub Actions `workflow_dispatch`; avoid a recurring schedule because E2E tests target the live Funtime site.
+- **Changed artifacts:** `.github/workflows/playwright.yml`; checked Phase 8 criterion 112 in `docs/IMPLEMENTATION_PLAN.md`; appended this checkpoint.
+- **Reason:** The existing full Playwright command already covers Chromium, Firefox, and WebKit, but previously the workflow could only be started by a push or pull request.
+- **Implementation:** Added `workflow_dispatch` to the existing workflow triggers. Manual runs reuse the existing lint, typecheck, Chromium smoke, and full-suite steps. No separate job, schedule, or credentials were added.
+- **Commands / status:** `git diff --check` — PASS; `ruby -e 'require "yaml"; YAML.load_file(".github/workflows/playwright.yml"); puts "YAML parse: PASS"'` — PASS; `npx playwright test --list` — PASS (42 test instances across Chromium, Firefox, and WebKit; no test navigation performed).
+- **Blockers / unknowns:** GitHub Actions manual dispatch and the full live-site suite — NOT RUN; no workflow was dispatched and no production traffic was generated during verification. The authenticated journey continues to skip unless its runtime credentials are supplied.
+- **Handoff:** Manually dispatch the workflow when a broader live-site regression run is intentionally desired; review test results and artifacts from that authorized run.

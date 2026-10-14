@@ -1,17 +1,25 @@
 import type { Locator, Page } from '@playwright/test';
+import { BreadcrumbsComponent } from '../components/BreadcrumbsComponent.js';
 import { ContactDetailsComponent } from '../components/ContactDetailsComponent.js';
 import { RelatedPlacesSectionComponent } from '../components/RelatedPlacesSectionComponent.js';
+import { SocialFollowComponent } from '../components/SocialFollowComponent.js';
 import { BasePage } from './BasePage.js';
 
 export class PlacePage extends BasePage {
+  readonly breadcrumbs: BreadcrumbsComponent;
   readonly contacts: ContactDetailsComponent;
   readonly nearbyPlacesSection: RelatedPlacesSectionComponent;
   readonly otherPlacesByTypeSection: RelatedPlacesSectionComponent;
+  readonly socialFollow: SocialFollowComponent;
 
   constructor(page: Page) {
     super(page);
 
+    this.breadcrumbs = new BreadcrumbsComponent(this.main.getByRole('list').first());
     this.contacts = new ContactDetailsComponent(this.main.locator('.ui.segment.contacts'));
+    this.socialFollow = new SocialFollowComponent(
+      this.main.locator('.ui.center.aligned.grid').filter({ hasText: 'Підписуйтесь на нас' }).first(),
+    );
 
     const nearbyGrid = this.main.locator('#near_locations + .ui.hidden.divider + .locs-grid');
     const nearbyViewAllLink = nearbyGrid.getByRole('link', {

@@ -61,34 +61,54 @@ npx playwright test --ui
 
 The E2E suite includes read-only public Funtime journeys and an HTTP availability smoke check; it does not require a local web server. Playwright's `baseURL` defaults to `https://funtime.com.ua` and can be overridden with `FUNTIME_BASE_URL`.
 
-## Authenticated tests
+## Public and authenticated tests
 
-The fresh-login check and reusable authenticated tests run only in Chromium. The auth setup logs in once per test run and saves Playwright `storageState` to `playwright/.auth/user.json`; the authenticated project reuses it for read-only protected-page checks. The state is a credential: it is Git-ignored, excluded from the Docker build context, and must not be shared or added to reports/artifacts. Remove the local state when it is no longer needed:
+Tests that require login and public tests run in **separate, isolated browser contexts**. An unauthenticated test does not inherit cookies or other state from an authenticated test. Playwright organizes this with projects:
+
+- `chromium`, `firefox`, `webkit` — regular tests. Each test starts in a fresh context without `storageState`; this includes public journeys.
+- `auth-setup` — a conditional Chromium setup project: logs in as the test user and saves `storageState`.
+- `authenticated-chromium` — a conditional Chromium project: depends on `auth-setup` and loads the saved state to test protected pages.
+
+Therefore, run `npm test` for the full suite. If **both** `APP_EMAIL` and `APP_PASSWORD` are available in the test process, one run executes public tests in the regular projects and additionally runs authenticated tests in `authenticated-chromium`. If both variables are absent, the authenticated project is omitted and the fresh-login check `AUTH-002` is skipped. Setting only one variable is a configuration error.
+
+```bash
+# Full suite: public browser projects + authenticated Chromium,
+# when APP_EMAIL and APP_PASSWORD are available to this process
+npm test
+
+# Public tests only in all three browsers; auth projects are not selected
+npm test -- --project=chromium --project=firefox --project=webkit
+
+# Only checks that use the saved authenticated state
+npm test -- --project=authenticated-chromium
+
+# Test the login flow by itself (logs in from a fresh Chromium context)
+npm test -- --project=chromium --grep AUTH-002
+
+# Public projects only, even if credentials are set; exclude the login check
+npm test -- --project=chromium --project=firefox --project=webkit --grep-invert AUTH-002
+```
+
+`AUTH-002` tests the login flow itself: it opens a fresh login page, enters the credentials, and checks access to the profile. It runs in the regular Chromium project. Separately, `auth-setup` logs in and saves state for `authenticated-chromium`. Thus a full run with credentials includes both the fresh-login check and a check that reuses authenticated state.
+
+### Local run with credentials
+
+Provide both variables to the `npm test` process using an approved secret manager or a secure shell environment mechanism. Do not put real values in a command, README, source code, or chat, and do not store them in the repository. Dotenv loading is disabled, so creating a `.env` file alone does not pass the variables to tests.
+
+### GitHub Actions run
+
+In the GitHub repository, create two **Repository secrets** via **Settings → Secrets and variables → Actions → New repository secret**:
+
+1. `APP_EMAIL` — the test user's email.
+2. `APP_PASSWORD` — the test user's password.
+
+The workflow passes these secrets to the test process and Docker only for the separate authenticated-test step. That step runs on `push` or manual `workflow_dispatch` for the `main`/`master` branches. The main public test run is separate and has no credentials. Secrets are not passed to `pull_request` runs (including fork PRs), and the authenticated step is not run for those events. If both secrets are absent, the authenticated step is skipped; if only one is configured, the workflow fails.
+
+The setup test saves `storageState` to `playwright/.auth/user.json`. This file contains authenticated state and is a credential: it is Git-ignored, excluded from the Docker build context, and must not be shared or added to reports/artifacts. CI stores authenticated reports/results in separate subdirectories and does not upload the `storageState` itself. Remove the local state when no longer needed:
 
 ```bash
 rm -f playwright/.auth/user.json
 ```
-
-Run public and authenticated tests independently:
-
-```bash
-# Public browser projects only; these use fresh, unauthenticated contexts
-npm test -- --project=chromium --project=firefox --project=webkit
-
-# Authenticated Chromium tests only (first set both variables securely in the test process)
-npm test -- --project=authenticated-chromium
-
-# Full suite: public projects plus authenticated Chromium when credentials are set
-npm test
-```
-
-The fresh-login check `AUTH-002` is part of the ordinary Chromium project when credentials are set. To run only public journeys in the browser projects while credentials remain available, exclude that login check:
-
-```bash
-npm test -- --project=chromium --project=firefox --project=webkit --grep-invert AUTH-002
-```
-
-Set both `APP_EMAIL` and `APP_PASSWORD` in the local test process using an approved secret manager or shell environment; do not put their values in source, command examples, or `.env`. With neither variable set, Playwright omits the authenticated project and the credential-gated login check skips; a partial pair is a configuration error. Dotenv loading remains disabled. In GitHub Actions, these secrets are used only for trusted pushes to `main`/`master` or manual dispatch on those branches; they are never passed to pull requests or forks. CI keeps authenticated reports/results in separate subdirectories, and the saved state is not uploaded.
 
 ## Run tests in Docker
 

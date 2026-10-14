@@ -104,6 +104,114 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 **Final expected state:** Public detail remains accessible and correctly identified. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
 **Evidence:** These page elements were observed in a read-only snapshot. **Automation notes:** Treat map/contact and recommendation contents as optional where location data differs.
 
+### LOC-002 — Location table of contents navigates to page sections
+
+**Functional area:** Location details / in-page navigation
+**Priority:** P2
+**Type:** Navigation
+**Preconditions:** A public location with a table of contents is reachable.
+**Test data:** `/relaxation-and-recreation/haiky-rezort`.
+**Initial state:** Anonymous visitor.
+**Related cases:** LOC-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open the location and expand “Показати зміст”. | A contents menu is shown. |
+| 2 | Inspect the links for description, review, gallery, contacts, reviews, and nearby places. | Each observed link references its corresponding in-page section. |
+
+**Final expected state:** Contents links resolve to section anchors. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Automation notes:** Exact contents can vary by location; only assert sections present in the selected representative location.
+
+### LOC-003 — Russian-language location link opens in a new tab
+
+**Functional area:** Location details / translation navigation
+**Priority:** P2
+**Type:** Navigation
+**Preconditions:** Location page exposes its Russian-language version.
+**Test data:** `/relaxation-and-recreation/haiky-rezort`.
+**Initial state:** Anonymous visitor.
+**Related cases:** LOC-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Inspect the Russian-language link. | It targets the corresponding `funtime.kiev.ua` page and has new-tab behavior. |
+| 2 | Open the link. | The Russian page opens separately while the Ukrainian location remains open. |
+
+**Final expected state:** Both page contexts remain available. **Cleanup:** Close the popup. **Status:** `NOT_EXECUTED`.
+**Automation notes:** Verify the observed host and that the source page remains on the original route; avoid hard-coding a translated slug unless independently verified.
+
+### LOC-004 — Location contacts expose address, directions, and phone reveal
+
+**Functional area:** Location contacts
+**Priority:** P2
+**Type:** Positive / read-only interaction
+**Preconditions:** A public location has an address, directions link, and phone number.
+**Test data:** `/relaxation-and-recreation/haiky-rezort`.
+**Initial state:** Anonymous visitor.
+**Related cases:** LOC-001, UI-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Inspect the contact block. | The address and directions link are present. |
+| 2 | Activate “показати” for a phone. | The complete phone number is displayed. |
+
+**Final expected state:** Contact details remain visible; no external call is initiated. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Automation notes:** Phone reveal is a page-local read-only interaction. Optional contact fields must not be required on pages that do not provide them.
+
+### LOC-005 — Location comparison opens its selection dialog
+
+**Functional area:** Location comparison
+**Priority:** P2
+**Type:** Positive / read-only interaction
+**Preconditions:** A public location offers comparison.
+**Test data:** `/relaxation-and-recreation/haiky-rezort`.
+**Initial state:** Anonymous visitor.
+**Related cases:** LOC-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Activate the location comparison control. | A dialog for comparing this location opens. |
+| 2 | Inspect the selection control. | Other location options and a compare action are available. |
+
+**Final expected state:** Selection dialog is open; no comparison is submitted. **Cleanup:** Close the dialog. **Status:** `NOT_EXECUTED`.
+**Automation notes:** Maximum selection count, result table rows, and comparison data semantics require further verification before asserting.
+
+### LOC-006 — Location gallery exposes full-size image links
+
+**Functional area:** Location gallery
+**Priority:** P2
+**Type:** Positive / read-only content
+**Preconditions:** A public location has gallery images.
+**Test data:** `/relaxation-and-recreation/haiky-rezort`.
+**Initial state:** Anonymous visitor.
+**Related cases:** LOC-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Inspect the location gallery. | At least one image is available and links to a full-size gallery file. |
+| 2 | Open the first image and inspect the lightbox. | A fullscreen viewer shows an image counter and navigation/close controls. |
+| 3 | Navigate forward and back, then close the viewer. | The counter changes with the image; previous navigation returns to the first image and close dismisses the viewer. |
+
+**Final expected state:** The gallery viewer opens, navigates, and closes. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Automation notes:** Full-size links, representative four-column layout, viewer opening, initial counter, and named controls are automated. In the current headless Chromium test run, both locator and mouse/DOM click attempts left the counter at 1 / 8; live MCP browser interaction did advance it. Forward/back/close behavior therefore remains a known automation-context limitation, not an automated pass.
+
+### LOC-007 — Location map preview opens the full map view
+
+**Functional area:** Location contacts / map
+**Priority:** P2
+**Type:** Positive / read-only interaction
+**Preconditions:** A public location has a map preview and map view.
+**Test data:** `/relaxation-and-recreation/haiky-rezort`.
+**Initial state:** Anonymous visitor.
+**Related cases:** LOC-001, UI-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Activate “Переглянути на мапі” in the contact block. | The location map view opens at `#map` and the map canvas is visible. |
+
+**Final expected state:** Map view is available on the same location route. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Automation notes:** The test checks the observed map hash/canvas transition; it does not assert map provider content, marker identity, or directions from device location.
+
 ### REL-001 — Open a related-place recommendation and return
 
 **Functional area:** Related content
@@ -1246,6 +1354,16 @@ The status fields in the cases above continue to describe the manual catalog sce
 | NAV-001 | Mobile menu navigation and Back | Chromium: PASS |
 | CAT-001 | One additional lake-card batch and unchanged URL | Chromium: PASS |
 | LOC-001 | River identity, breadcrumb href, directions control, observed sections, refresh | Chromium: PASS |
+| LOC-002 | Contents menu exposes links to observed description/review/gallery/contacts/reviews/nearby anchors | Chromium: PASS (2026-10-14) |
+| LOC-003 | Russian-language location link opens the `funtime.kiev.ua` route in a popup while the source remains on its original route | Chromium: PASS (2026-10-14) |
+| LOC-004 | Address and directions are present; phone “показати” interaction reveals the visible number | Chromium: PASS (2026-10-14) |
+| LOC-005 | Opens the comparison dialog, selects one peer, submits, and checks comparison route plus parity of source overview-row labels | Chromium: PASS (2026-10-14); maximum selection and review-block parity remain unverified |
+| LOC-006 | Checks full-size image links and four-column gallery layout where enough images exist; opens viewer and checks initial counter and named controls | Chromium: PASS (2026-10-14); forward/back/close actions are not asserted because they did not change state in the headless test run |
+| LOC-007 | Map preview updates the route to `#map` and displays the location map canvas | Chromium: PASS (2026-10-14); full-screen behavior/provider/marker identity are unverified |
+| LOC-008 | Breadcrumb category/type hrefs and navigation to both destinations | Chromium: PASS (2026-10-14) |
+| LOC-009 | Optional website target/UTM values and rendered contact-social destinations | Chromium: PASS (2026-10-14); initial reveal behavior and all possible platform types are not asserted |
+| LOC-010 | Anonymous planning/visited/review actions expose login modal endpoint and authorization prompt metadata | Chromium: PASS (2026-10-14); popup is observed manually in MCP but its click behavior was not reliable in the Playwright Test run |
+| LOC-011 | Review-region presence; seven-or-more related cards with 4+3 row shape; nearby/type view-all routes; social-follow and footer structure | Chromium: PASS (2026-10-14); does not prove recommendation relevance or exact card total |
 | REL-001 | Recommendation href/destination heading and Back | Chromium: PASS |
 | NAV-003 | DinoSofia collection link and destination heading | Chromium: PASS |
 | ART-001 | Quest-category link opens popup; destination heading and source article remain available | Chromium: PASS |
@@ -1289,3 +1407,32 @@ The status fields in the cases above continue to describe the manual catalog sce
 | CAT-023 | FIXME: category cards expose no numeric ratings to verify low-to-high order | Chromium: SKIPPED (2026-10-14) |
 
 Public journeys were executed only in Chromium; Firefox and WebKit were discovered but not run. Homepage cases ran with `npm test -- --grep "HOME-" --project=chromium --workers=3` (12 passed). The authenticated case is an intentionally limited subset of `AUTH-002`, not completion of its state lifecycle. The manual statuses above remain unchanged.
+
+## Target-site draft scenario mapping (2026-10-14)
+
+The following matrix maps every numbered scenario and subcase in [`TASK_SPECK_TARGET_SITE.md`](../../TASK_SPECK_TARGET_SITE.md) without changing that user-authored draft. `Partial` means the listed assertions are automated, not that the full draft criterion is accepted.
+
+| Draft scenario | Automated mapping | Coverage / status |
+|---|---|---|
+| 1. Breadcrumbs | LOC-008 | Category/type links and destinations automated on the representative castle page; partial sample only. |
+| 2. Table of contents | LOC-002 | Menu links and section viewport navigation automated; description subheading hierarchy remains unasserted. |
+| 3. Russian-language version | LOC-003 | Popup host and original-page retention automated. |
+| 4a. Address/map | LOC-004, LOC-007 | Address and same-page `#map`/canvas automated; full-screen wording is not established. |
+| 4b. Directions | LOC-004, UI-001 | Link shape is checked; no external navigation/current-location or coordinate oracle. |
+| 4c. Optional website | LOC-009 | `_blank` and three observed UTM values checked on one location; website reveal behavior is not covered. |
+| 4d. Optional phone | LOC-004 | Click-to-reveal is covered; live observation showed the complete number already present before the reveal, so the draft's masked-initial-state criterion is unresolved. |
+| 4e. Social links | LOC-009, LOC-011 | Contact links and four shared follow links are checked for observed destinations; not every listed platform is present/tested on the selected location. |
+| 5a. Authenticated planning transition | AUTH-002 | **BLOCKED**: no approved disposable account/environment, known starting state, or reliable cleanup; existing AUTH-002 is read-only and does not cover this transition. |
+| 5b. Authenticated visited transition | AUTH-002 | **BLOCKED** for the same prerequisites; no mutation/order/count/persistence test runs. |
+| 5c–5d. Anonymous planning/visited authorization | LOC-010 | Prompt metadata automated; MCP confirmed a prompt modal manually. Playwright Test click-to-modal behavior was intermittent, so the visible modal is not claimed as automated. |
+| 6. Reviews section | LOC-001, LOC-011 | Review-region presence automated; exact placement/content order is not fully asserted. |
+| 7. Comparison | LOC-005 | Dialog, one-peer selection, comparison route and overview-label parity automated; max-four selection and review-block parity are not verified. |
+| 8. Gallery | LOC-006 | Image links, representative grid, viewer opening/counter/controls automated; navigation/close remain unautomated in the current headless test context. |
+| 9a. Authenticated review form/submission | — | **BLOCKED**: no approved environment/account, review data, moderation oracle, or cleanup plan. No review is submitted. |
+| 9b. Anonymous review authorization | LOC-010 | Prompt metadata automated; visible login prompt is manually observed, not reliably automated. No login is performed. |
+| 10. Nearby recommendations | LOC-011 | Seven-or-more cards, 4+3 row shape, and view-all destination automated; proximity/ranking and exact total remain unverified. |
+| 11. Same-type recommendations | LOC-011 | Seven-or-more cards, 4+3 row shape, and type-catalog destination automated; taxonomy relevance and exact total remain unverified. |
+| 12. Social-follow section | LOC-011, HOME-008 | Heading/count on location page and platform destinations on homepage checked; location-page destinations not all individually matched. |
+| 13. Footer | LOC-011, HOME-009 | Location page checks headings/legal text; HOME-009 validates footer links on `/` and `/architecture`, not every template. |
+
+**Known oracle mismatches:** comparison uses overview-row labels, not review-block rows; the map behavior is in-page rather than confirmed fullscreen; the anonymous UI shows an authorization modal rather than a route redirect; the sampled phone is not initially masked. These observed details must not be silently rewritten as draft requirements. No automated test submits reviews or mutates authenticated account state.

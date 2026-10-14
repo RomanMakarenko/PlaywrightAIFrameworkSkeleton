@@ -1,7 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
+import { resolve } from 'node:path';
 import { FUNTIME_BASE_URL } from './src/config/testConfig.js';
 
 // Optional overrides come from the test process; dotenv loading is intentionally disabled.
+const hasAppEmail = Boolean(process.env.APP_EMAIL);
+const hasAppPassword = Boolean(process.env.APP_PASSWORD);
+
+if (hasAppEmail !== hasAppPassword) {
+  throw new Error('Set both APP_EMAIL and APP_PASSWORD to enable authenticated tests.');
+}
+
+const authFile = resolve('playwright/.auth/user.json');
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -31,18 +40,37 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: ['**/auth.setup.ts', '**/authenticated.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
 
     {
       name: 'firefox',
+      testIgnore: ['**/auth.setup.ts', '**/authenticated.spec.ts'],
       use: { ...devices['Desktop Firefox'] },
     },
 
     {
       name: 'webkit',
+      testIgnore: ['**/auth.setup.ts', '**/authenticated.spec.ts'],
       use: { ...devices['Desktop Safari'] },
     },
+
+    ...(hasAppEmail
+      ? [
+          {
+            name: 'auth-setup',
+            testMatch: '**/auth.setup.ts',
+            use: { ...devices['Desktop Chrome'] },
+          },
+          {
+            name: 'authenticated-chromium',
+            testMatch: '**/authenticated.spec.ts',
+            dependencies: ['auth-setup'],
+            use: { ...devices['Desktop Chrome'], storageState: authFile },
+          },
+        ]
+      : []),
 
     /* Test against mobile viewports. */
     // {

@@ -22,8 +22,8 @@
 
 ## Поточна структура
 
-- Повторно використовуваний код фреймворку: `src/` (`api/`, `components/`, `config/`, `data/`, `fixtures/`, `models/`, `pages/`, `utils/`).
-- Тестові набори: `tests/` (`api/`, `db/`, `e2e/`, `integration/`, `testdata/`, `visual/`), а також наявні приклади тестів.
+- Повторно використовуваний код фреймворку: `src/` (`api/`, `components/`, `config/`, `data/`, `models/`, `pages/`, `utils/`).
+- Тестові набори й test-scoped fixtures: `tests/` (`api/`, `db/`, `e2e/`, `integration/`, `testdata/`, `visual/`), `tests/fixtures.ts` та наявні приклади тестів. Не розміщуй Playwright Test fixtures у `src/`.
 - `src/utils/` містить реалізовані утиліти для тестових даних, файлів, БД, очікувань UI та дат.
 - Кореневі `api/endpoints/` і `api/schemas/` є scaffold-каталогами. Для нового повторно використовуваного коду дотримуйся правила `src/`; не створюй дві копії API-клієнтів або схем у `api/` та `src/api/`. Якщо задача явно вимагає кореневий `api/`, дотримуйся її та поясни розміщення.
 - `tests/testdata/` призначений для статичних тестових файлів; не плутай його з повторно використовуваними даними й моделями у `src/data/`.
@@ -42,7 +42,7 @@
 
 ## Домовленості щодо реалізації
 
-- Будуй тести на нативній моделі Playwright Test: використовуй типізовані fixtures через `test.extend`, а де можливо — вбудовані `page`, `context` і `request`. За замовчуванням зберігай ізоляцію на рівні тесту; worker-scoped fixtures застосовуй лише для свідомо спільного й безпечного стану. Не перенось Java/TestNG lifecycle, DI чи thread-local driver patterns.
+- Будуй тести на нативній моделі Playwright Test: використовуй типізовані fixtures через `test.extend` у `tests/fixtures.ts`, а де можливо — вбудовані `page`, `context` і `request`. За замовчуванням зберігай ізоляцію на рівні тесту; worker-scoped fixtures застосовуй лише для свідомо спільного й безпечного стану. Не перенось Java/TestNG lifecycle, DI чи thread-local driver patterns.
 - Застосовуй Page Objects у `src/pages/` для сторінок із повторюваною поведінкою, а компоненти — у `src/components/` лише коли абстракція справді повторно використовується. Не створюй обгортки заради обгорток.
 - Розподіляй перевірки за призначенням: UI journey — `tests/e2e/`, API — `tests/api/`, БД — `tests/db/`, взаємодія шарів — `tests/integration/`, візуальні/snapshot-перевірки — `tests/visual/`. Не дублюй одну й ту саму перевірку в кількох шарах без причини.
 - Для UI використовуй стійкі доступні локатори (`getByRole`, `getByLabel`, `getByText`) і web-first assertions. Не використовуй довільні sleep/timeout як синхронізацію; дочікуйся конкретного стану чи події.

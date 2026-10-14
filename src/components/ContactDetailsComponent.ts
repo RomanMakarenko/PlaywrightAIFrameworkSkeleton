@@ -27,6 +27,10 @@ export class ContactDetailsComponent {
     return this.root.locator('.contacts-list > .item');
   }
 
+  get addressEntry(): Locator {
+    return this.root.locator('.item.show-map-btn[data-type="address"]');
+  }
+
   get mapPreview(): Locator {
     return this.root.getByText('Переглянути на мапі', { exact: true });
   }

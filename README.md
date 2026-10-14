@@ -61,6 +61,22 @@ npx playwright test --ui
 
 The E2E suite includes read-only public Funtime journeys and an HTTP availability smoke check; it does not require a local web server. Playwright's `baseURL` defaults to `https://funtime.com.ua` and can be overridden with `FUNTIME_BASE_URL`.
 
+## Authenticated tests
+
+The fresh-login check and reusable authenticated tests run only in Chromium. The auth setup logs in once per test run and saves Playwright `storageState` to `playwright/.auth/user.json`; the authenticated project reuses it for read-only protected-page checks. The state is a credential: it is Git-ignored, excluded from the Docker build context, and must not be shared or added to reports/artifacts. Remove the local state when it is no longer needed:
+
+```bash
+rm -f playwright/.auth/user.json
+```
+
+Set both `APP_EMAIL` and `APP_PASSWORD` in the local test process using an approved secret manager or shell environment, then explicitly run the authenticated Chromium project:
+
+```bash
+npm test -- --project=authenticated-chromium
+```
+
+With neither variable set, Playwright leaves the auth projects out and continues public tests; a partial pair is a configuration error. Dotenv loading remains disabled. In GitHub Actions, these secrets are used only for trusted non-pull-request events (protected-branch pushes or manual dispatch); they are never passed to pull requests or forks. CI keeps authenticated reports/results in separate subdirectories, and the saved state is not uploaded.
+
 ## Run tests in Docker
 
 The Docker image is pinned to the Playwright version in `package-lock.json`. From the repository root, build it and run either the focused smoke check or the full browser suite:

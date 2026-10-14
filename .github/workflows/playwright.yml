@@ -33,6 +33,25 @@ jobs:
       run: docker compose --env-file /dev/null run --rm playwright npm run test:smoke
     - name: Run Playwright tests in Docker
       run: docker compose --env-file /dev/null run --rm playwright npm test
+    - name: Run authenticated Chromium tests
+      if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
+      env:
+        APP_EMAIL: ${{ secrets.APP_EMAIL }}
+        APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+      run: |
+        if [ -z "${APP_EMAIL:-}" ] && [ -z "${APP_PASSWORD:-}" ]; then
+          echo "Skipping authenticated tests because GitHub Actions secrets are not configured."
+          exit 0
+        fi
+        if [ -z "${APP_EMAIL:-}" ] || [ -z "${APP_PASSWORD:-}" ]; then
+          echo "::error::Configure both APP_EMAIL and APP_PASSWORD secrets to run authenticated tests."
+          exit 1
+        fi
+        docker compose --env-file /dev/null run --rm \
+          -e APP_EMAIL -e APP_PASSWORD \
+          -e PLAYWRIGHT_HTML_REPORT=/app/playwright-report/authenticated/html \
+          -e PLAYWRIGHT_TEST_RESULTS=/app/test-results/authenticated/results \
+          playwright npm test -- --project=authenticated-chromium
     - uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:

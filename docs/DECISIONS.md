@@ -37,3 +37,12 @@ Append-only log of durable architecture and process decisions. Each ID is stable
 - **Rationale:** Each record has one clear owner: work history and handoff, decision rationale, or current phase status.
 - **Consequences:** Checkpoints may link decision IDs and plan phases, but must not duplicate or independently declare phase completion. Decisions should be recorded only when they are consequential and durable.
 - **Evidence:** The documentation workflow established in the current project change; see the latest checkpoint in [`RUNBOOK.md`](RUNBOOK.md).
+
+### D-2026-10-14-01 — Reuse runtime-generated Playwright authentication state
+
+- **Status:** Accepted
+- **Context:** Authenticated UI coverage should scale beyond a single login smoke test without entering credentials in every protected test. The project already uses runtime-only credentials and has Git/Docker exclusions for Playwright auth state.
+- **Decision:** Generate Playwright `storageState` at runtime from `APP_EMAIL` and `APP_PASSWORD` in a Chromium setup project; reuse it only for dedicated authenticated read-only tests. Enable CI use only on trusted pushes to `main`/`master` or manual dispatch on those branches, never on pull requests.
+- **Rationale:** This reuses Playwright's native context lifecycle, keeps login-flow coverage distinct from session reuse, and limits exposure of credentials and state while preserving public tests when auth secrets are absent.
+- **Consequences:** The state is treated as a credential, stored only under ignored `playwright/.auth/`, excluded from image contents/artifacts, and removed locally when no longer needed. Account-mutating tests require separately approved test data and restoration procedures.
+- **Evidence:** Auth setup/project discovery and read-only Chromium suite verification are recorded in the 2026-10-14 [`RUNBOOK.md`](RUNBOOK.md) checkpoint.

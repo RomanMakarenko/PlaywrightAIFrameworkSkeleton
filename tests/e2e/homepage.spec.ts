@@ -178,8 +178,21 @@ test.describe('Funtime homepage journeys', () => {
     }
   });
 
-  test('HOME-009: requested footer links open their matching routes', async ({ page }) => {
+  test('HOME-009: shared footer links render on a category page and open their routes', async ({ page, catalogPage }) => {
     test.setTimeout(120_000);
+
+    await catalogPage.open('/architecture');
+    await expect(catalogPage.siteFooter.root).toBeVisible();
+    await expect(catalogPage.siteFooter.rubricsHeading).toBeVisible();
+    await expect(catalogPage.siteFooter.pagesHeading).toBeVisible();
+    for (const footerLink of footerLinks) {
+      const link = catalogPage.siteFooter.root.getByRole('link', {
+        name: footerLink.name,
+        exact: true,
+      });
+      await expect(link).toBeVisible();
+      await expect(link).toHaveAttribute('href', footerLink.path);
+    }
 
     const homePage = new HomePage(page);
     for (const footerLink of footerLinks) {

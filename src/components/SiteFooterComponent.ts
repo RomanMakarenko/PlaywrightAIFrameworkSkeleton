@@ -7,6 +7,14 @@ export class SiteFooterComponent {
     return this.root.getByRole('link');
   }
 
+  get rubricsHeading(): Locator {
+    return this.root.getByText('Рубрики', { exact: true });
+  }
+
+  get pagesHeading(): Locator {
+    return this.root.getByText('Сторінки', { exact: true });
+  }
+
   get rssEmailInput(): Locator {
     return this.root.getByRole('textbox', { name: 'введіть email' });
   }

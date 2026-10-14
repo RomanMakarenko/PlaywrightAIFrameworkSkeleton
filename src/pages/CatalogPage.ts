@@ -33,6 +33,30 @@ export class CatalogPage extends BasePage {
     );
   }
 
+  get categoryDescription(): Locator {
+    return this.main.locator('.category-description');
+  }
+
+  get categoryIntroExpandControl(): Locator {
+    return this.categoryDescription.getByText('Показати весь текст', { exact: true });
+  }
+
+  get categoryMapControl(): Locator {
+    return this.main.getByText('Показати на мапі всі місця', { exact: true });
+  }
+
+  get locationGrid(): Locator {
+    return this.main.locator('.locs-grid');
+  }
+
+  get collectionCards(): Locator {
+    return this.main.locator('article.collection-card');
+  }
+
+  get sortMenu(): Locator {
+    return this.page.locator('.ui.secondary.fluid.big.vertical.menu');
+  }
+
   get placeCards(): Locator {
     return this.main.locator('article.img-list-grid');
   }

@@ -799,7 +799,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 3 | Compare the resulting order with the confirmed rule or baseline. | The order matches the defined default; no unsupported ordering rule is inferred. |
 
 **Final expected state:** Category list uses the default sort. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (the default ordering rule is not defined in the draft).
-**Evidence:** Draft scenario only; no sort selection recorded. **Automation notes:** Obtain a stable expected dataset or verified baseline before asserting exact order.
+**Evidence:** Read-only inspection confirmed the menu option is selectable, but the product-defined default ordering rule is not exposed by the category cards. **Automation notes:** Automated order assertions remain blocked until a stable expected dataset or verified default rule is available; selection state alone does not verify ordering.
 
 ### CAT-016 — Sort category locations by popularity
 
@@ -818,7 +818,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 2 | Compare the displayed location sequence with the verified popularity values. | Values are ordered in the product-defined direction; ties follow the confirmed tie-break rule. |
 
 **Final expected state:** The popularity sort is selected. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (metric source, direction, and tie-break behavior are unknown).
-**Evidence:** Draft scenario only; no popularity values or sort results observed. **Automation notes:** Do not infer popularity from card position, views, or ratings; use an approved data oracle.
+**Evidence:** The live sort menu presents “за популярністю” as a section heading rather than a selectable option; no popularity value or metric is exposed on category cards. **Automation notes:** Do not infer popularity from card position, views, or ratings; use an approved data oracle.
 
 ### CAT-017 — Sort category locations by date added
 
@@ -837,7 +837,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 2 | Compare card order with verified date-added values. | The order follows the defined direction and tie-break rule. |
 
 **Final expected state:** Date-added sorting is selected. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (direction and distinction from newest/oldest publication-date sorting are unresolved).
-**Evidence:** Draft scenario only; no sort result observed. **Automation notes:** Keep this case distinct from CAT-018/019 only if the product defines separate fields or semantics.
+**Evidence:** The live sort menu presents “за датою додавання” as a section heading rather than a selectable option; no date-added field is visible on category cards. **Automation notes:** Keep this case distinct from CAT-018/019 only if the product defines separate fields or semantics.
 
 ### CAT-018 — Sort newest published locations first
 
@@ -856,7 +856,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 2 | Compare the first, intermediate, and last location dates. | Dates are monotonically descending: newest first and oldest last; advertising entries are excluded from the location-order assertion. |
 
 **Final expected state:** Locations are ordered newest to oldest by the confirmed date field. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (the sort option and trustworthy date signal are unverified).
-**Evidence:** Draft scenario only; no location publication dates observed. **Automation notes:** Do not use volatile labels such as “new” as a substitute for an exact date oracle.
+**Evidence:** On `/nature`, category cards exposed titles, links, images, and non-numeric badge/empty rating blocks, but no publication dates. An image-path year/month is not a trusted date oracle. **Automation notes:** Do not use volatile labels such as “new” as a substitute for an exact date oracle.
 
 ### CAT-019 — Sort oldest published locations first
 
@@ -875,7 +875,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 2 | Compare the sequence with verified publication dates. | Dates are monotonically ascending: oldest first and newest last; advertising entries are excluded from the location-order assertion. |
 
 **Final expected state:** Locations are ordered oldest to newest by the confirmed date field. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (the date field and ordering semantics are unverified).
-**Evidence:** Draft scenario only; no location publication dates observed. **Automation notes:** Compare against the same date oracle used by CAT-018 and verify reverse ordering where ties do not apply.
+**Evidence:** On `/nature`, category cards exposed titles, links, images, and non-numeric badge/empty rating blocks, but no publication dates. An image-path year/month is not a trusted date oracle. **Automation notes:** Compare against the same date oracle used by CAT-018 and verify reverse ordering where ties do not apply.
 
 ### CAT-020 — Sort location titles from A to Я
 
@@ -894,7 +894,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 2 | Compare adjacent displayed titles. | Titles follow the defined collation behavior for case, punctuation, and Ukrainian letters. |
 
 **Final expected state:** The list uses ascending alphabetical order. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (exact UI label and locale collation rules are not confirmed).
-**Evidence:** Draft scenario only; no sort result observed. **Automation notes:** Use locale-aware comparison matching the product behavior; do not rely on JavaScript default string ordering without validation.
+**Evidence:** Read-only selection on `/nature` rendered visible location titles in ascending order matching `Intl.Collator('uk-UA', { sensitivity: 'base' })`; automated coverage now checks the complete visible title sequence. **Automation notes:** The comparator matches this sample; broader punctuation, case, and tie requirements remain unconfirmed.
 
 ### CAT-021 — Sort location titles from Я to A
 
@@ -913,7 +913,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 2 | Compare displayed titles with the descending locale-aware sequence. | The list follows reverse alphabetical order, with case and punctuation handled by the defined collation rules. |
 
 **Final expected state:** The list uses descending alphabetical order. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (exact UI label and locale collation rules are not confirmed).
-**Evidence:** Draft scenario only; no sort result observed. **Automation notes:** Compare to a locale-aware descending comparator; account for stable tie-breaking.
+**Evidence:** Read-only selection on `/nature` rendered visible location titles in descending order matching the reverse of `Intl.Collator('uk-UA', { sensitivity: 'base' })`; automated coverage now checks the complete visible title sequence. **Automation notes:** The comparator matches this sample; broader punctuation, case, and tie requirements remain unconfirmed.
 
 ### CAT-022 — Sort locations from highest to lowest rating
 
@@ -932,7 +932,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 2 | Compare each displayed location’s rating with the verified data. | Highest rated location appears first and the remaining rated locations follow descending order; tie and missing-rating behavior follows the confirmed rule. |
 
 **Final expected state:** Locations are ordered from high to low rating. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (rating source, tie handling, and missing-rating placement are unknown).
-**Evidence:** Draft scenario only; no rating order observed. **Automation notes:** Do not treat an absent rating as zero unless product behavior confirms it.
+**Evidence:** On `/nature`, category cards had no numeric rating text; rating blocks were empty or showed non-rating “new”/Funtime-checked badges. **Automation notes:** Do not treat an absent rating as zero unless product behavior confirms it.
 
 ### CAT-023 — Sort locations from lowest to highest rating
 
@@ -951,7 +951,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 2 | Compare each displayed location’s rating with the verified data. | Lowest rated location appears first and the remaining rated locations follow ascending order; tie and missing-rating behavior follows the confirmed rule. |
 
 **Final expected state:** Locations are ordered from low to high rating. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (rating source, tie handling, and missing-rating placement are unknown).
-**Evidence:** Draft scenario only; no rating order observed. **Automation notes:** Compare with the same data oracle as CAT-022; do not assume how unrated entries are placed.
+**Evidence:** On `/nature`, category cards had no numeric rating text; rating blocks were empty or showed non-rating “new”/Funtime-checked badges. **Automation notes:** Compare with the same data oracle as CAT-022; do not assume how unrated entries are placed.
 
 ### REV-002 — Review filters produce a recorded list state and can be reset
 
@@ -1277,15 +1277,15 @@ The status fields in the cases above continue to describe the manual catalog sce
 | CAT-011 | FIXME: ad identity, disclosure, count treatment, placement, and repetition rules are unresolved | Chromium: SKIPPED (2026-10-14) |
 | CAT-012 | First currently rendered category type link opens a route whose heading matches the link label | Chromium: PASS (2026-10-14) |
 | CAT-013 | Partial: first collection card image and title links open the same collection and match its heading | Chromium: PASS (2026-10-14) |
-| CAT-014 | Partial: the seven currently selectable sort choices are visible; group headings are not treated as options | Chromium: PASS (2026-10-14) |
-| CAT-015 | Partial: “по замовчуванню” can be selected and becomes active; list ordering is not asserted | Chromium: PASS (2026-10-14) |
+| CAT-014 | The seven currently selectable sort choices are visible; popularity/date-added labels remain non-selectable section headings | Chromium: PASS (2026-10-14) |
+| CAT-015 | FIXME: default order has no independently verified rule or expected sequence | Chromium: SKIPPED (2026-10-14) |
 | CAT-016 | FIXME: “за популярністю” is a section heading, not a selectable option; metric/oracle are unknown | Chromium: SKIPPED (2026-10-14) |
 | CAT-017 | FIXME: “за датою додавання” is a section heading, not a selectable option; date field/rule are unknown | Chromium: SKIPPED (2026-10-14) |
-| CAT-018 | Partial: “спочатку найновіші” can be selected and becomes active; publication dates/order are not asserted | Chromium: PASS (2026-10-14) |
-| CAT-019 | Partial: “спочатку самі перші” can be selected and becomes active; publication dates/order are not asserted | Chromium: PASS (2026-10-14) |
-| CAT-020 | Partial: “від А до Я” can be selected and becomes active; Ukrainian collation is not asserted | Chromium: PASS (2026-10-14) |
-| CAT-021 | Partial: “від Я до А” can be selected and becomes active; Ukrainian collation is not asserted | Chromium: PASS (2026-10-14) |
-| CAT-022 | Partial: “спочатку з високим рейтингом” can be selected and becomes active; rating order is not asserted | Chromium: PASS (2026-10-14) |
-| CAT-023 | Partial: “спочатку з низьким рейтингом” can be selected and becomes active; rating order is not asserted | Chromium: PASS (2026-10-14) |
+| CAT-018 | FIXME: category cards expose no publication dates to verify newest-first order | Chromium: SKIPPED (2026-10-14) |
+| CAT-019 | FIXME: category cards expose no publication dates to verify oldest-first order | Chromium: SKIPPED (2026-10-14) |
+| CAT-020 | Partial: rendered location-card titles are verified in ascending Ukrainian locale order on `/nature` | Chromium: PASS (2026-10-14) |
+| CAT-021 | Partial: rendered location-card titles are verified in descending Ukrainian locale order on `/nature` | Chromium: PASS (2026-10-14) |
+| CAT-022 | FIXME: category cards expose no numeric ratings to verify high-to-low order | Chromium: SKIPPED (2026-10-14) |
+| CAT-023 | FIXME: category cards expose no numeric ratings to verify low-to-high order | Chromium: SKIPPED (2026-10-14) |
 
 Public journeys were executed only in Chromium; Firefox and WebKit were discovered but not run. Homepage cases ran with `npm test -- --grep "HOME-" --project=chromium --workers=3` (12 passed). The authenticated case is an intentionally limited subset of `AUTH-002`, not completion of its state lifecycle. The manual statuses above remain unchanged.

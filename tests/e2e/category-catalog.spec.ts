@@ -9,20 +9,51 @@ async function openNatureCategory(page: Page, catalogPage: CatalogPage): Promise
   await expect(page).toHaveURL(`${FUNTIME_BASE_URL}/nature`);
 }
 
-async function selectSortOption(
+type PlaceCardSnapshot = {
+  title: string;
+  href: string;
+};
+
+async function getDisplayedPlaceCards(catalogPage: CatalogPage): Promise<PlaceCardSnapshot[]> {
+  return catalogPage.placeCards.evaluateAll((cards) =>
+    cards.map((card) => ({
+      title: card.querySelector('.grid-title')?.textContent?.replace(/\s+/g, ' ').trim() ?? '',
+      href: card.querySelector('a[href]')?.getAttribute('href') ?? '',
+    })),
+  );
+}
+
+async function selectAlphabeticalSortAndVerifyOrder(
   page: Page,
   catalogPage: CatalogPage,
   label: string,
+  direction: 'ascending' | 'descending',
 ): Promise<void> {
   await openNatureCategory(page, catalogPage);
-  const initialCardCount = await catalogPage.placeCards.count();
-
   await catalogPage.sortButton.click();
   const option = catalogPage.sortMenu.locator('.link.item').getByText(label, { exact: true });
   await expect(option).toBeVisible();
   await option.click();
   await expect(option).toHaveClass(/active/);
-  await expect(catalogPage.placeCards).toHaveCount(initialCardCount);
+
+  const collator = new Intl.Collator('uk-UA', { sensitivity: 'base' });
+  await expect
+    .poll(async () => {
+      const cards = await getDisplayedPlaceCards(catalogPage);
+      const titles = cards.map(({ title }) => title);
+      const sortedTitles = [...titles].sort((left, right) => {
+        const result = collator.compare(left, right);
+        return direction === 'ascending' ? result : -result;
+      });
+
+      return (
+        cards.length > 1 &&
+        cards.every(({ title, href }) => title.length > 0 && href.length > 0) &&
+        new Set(cards.map(({ href }) => href)).size === cards.length &&
+        titles.every((title, index) => title === sortedTitles[index])
+      );
+    })
+    .toBe(true);
 }
 
 function normalizeText(value: string): string {
@@ -211,8 +242,12 @@ test.describe('Funtime category catalog', () => {
     }
   });
 
-  test('CAT-015: default category ordering can be selected', async ({ page, catalogPage }) => {
-    await selectSortOption(page, catalogPage, 'по замовчуванню');
+  test('CAT-015: default category order follows the defined ordering rule', async ({ catalogPage }) => {
+    test.fixme(
+      true,
+      'The product-defined default order has no independently verified data oracle or expected sequence.',
+    );
+    await catalogPage.open('/nature');
   });
 
   test('CAT-016: category locations can be sorted by popularity', async ({ catalogPage }) => {
@@ -231,39 +266,59 @@ test.describe('Funtime category catalog', () => {
     await catalogPage.open('/nature');
   });
 
-  test('CAT-018: newest-first category sort can be selected', async ({ page, catalogPage }) => {
-    await selectSortOption(page, catalogPage, 'спочатку найновіші');
+  test('CAT-018: newest-first category order follows publication dates', async ({ catalogPage }) => {
+    test.fixme(
+      true,
+      'Category cards expose no publication date; image paths and the “new” badge are not reliable date oracles.',
+    );
+    await catalogPage.open('/nature');
   });
 
-  test('CAT-019: oldest-first category sort can be selected', async ({ page, catalogPage }) => {
-    await selectSortOption(page, catalogPage, 'спочатку самі перші');
+  test('CAT-019: oldest-first category order follows publication dates', async ({ catalogPage }) => {
+    test.fixme(
+      true,
+      'Category cards expose no publication date; image paths and the “new” badge are not reliable date oracles.',
+    );
+    await catalogPage.open('/nature');
   });
 
-  test('CAT-020: ascending Ukrainian alphabetical category sort can be selected', async ({
+  test('CAT-020: category cards appear in ascending Ukrainian alphabetical order', async ({
     page,
     catalogPage,
   }) => {
-    await selectSortOption(page, catalogPage, 'від А до Я');
+    await selectAlphabeticalSortAndVerifyOrder(
+      page,
+      catalogPage,
+      'від А до Я',
+      'ascending',
+    );
   });
 
-  test('CAT-021: descending Ukrainian alphabetical category sort can be selected', async ({
+  test('CAT-021: category cards appear in descending Ukrainian alphabetical order', async ({
     page,
     catalogPage,
   }) => {
-    await selectSortOption(page, catalogPage, 'від Я до А');
+    await selectAlphabeticalSortAndVerifyOrder(
+      page,
+      catalogPage,
+      'від Я до А',
+      'descending',
+    );
   });
 
-  test('CAT-022: high-to-low category rating sort can be selected', async ({
-    page,
-    catalogPage,
-  }) => {
-    await selectSortOption(page, catalogPage, 'спочатку з високим рейтингом');
+  test('CAT-022: category cards appear in high-to-low rating order', async ({ catalogPage }) => {
+    test.fixme(
+      true,
+      'Category cards expose no numeric rating values; their rating blocks are empty or show non-rating badges.',
+    );
+    await catalogPage.open('/nature');
   });
 
-  test('CAT-023: low-to-high category rating sort can be selected', async ({
-    page,
-    catalogPage,
-  }) => {
-    await selectSortOption(page, catalogPage, 'спочатку з низьким рейтингом');
+  test('CAT-023: category cards appear in low-to-high rating order', async ({ catalogPage }) => {
+    test.fixme(
+      true,
+      'Category cards expose no numeric rating values; their rating blocks are empty or show non-rating badges.',
+    );
+    await catalogPage.open('/nature');
   });
 });

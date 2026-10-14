@@ -589,6 +589,249 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 **Final expected state:** Link target and location correspondence are documented for confirmation. **Cleanup:** Close any external tab/window. **Status:** `NOT_EXECUTED`.
 **Evidence:** A directions/map affordance was observed; its destination was not activated during the audit. **Automation notes:** Implemented in `tests/e2e/public-journeys.spec.ts`; it checks the observed directions URL shape only. Keep external navigation isolated; do not assert a map vendor, route format, or coordinates as a product requirement.
 
+## Homepage journeys
+
+### HOME-001 — Open a location from the homepage map
+
+**Functional area:** Homepage map
+**Priority:** P1
+**Type:** Navigation / map interaction
+**Preconditions:** Homepage and its map provider are reachable; use an anonymous browser context.
+**Test data:** `/`; “Переглянути усі місця на карті”; a published location marker/card rendered by the map.
+**Initial state:** Anonymous visitor on the homepage before opening the map.
+**Template:** Homepage map and location detail. **Sitemap patterns:** `/` and `/{category}/{slug}`.
+**Related cases:** HOME-002, HOME-010, HOME-011.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and locate the map action. | The homepage loads and the map action is visible and operable. |
+| 2 | Activate “Переглянути усі місця на карті”. | A map containing published site locations becomes visible. |
+| 3 | Select a location marker. | The map focuses/zooms to that marker and displays a location card corresponding to the selected marker. |
+| 4 | Activate the card image or title. | The browser opens the matching location detail page; the destination identity matches the selected card. |
+
+**Final expected state:** Matching public location detail is open. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Evidence:** The homepage control was observed as a non-semantic `div` with a map action; activating it changed the URL to `/#map` and exposed a Google Maps region. Chromium automation verifies the action, URL, and visible map region; marker-to-card behavior remains unverified. **Automation notes:** Map markers were not exposed as named accessible controls in the inspected snapshot; marker focus, card identity, and matching detail navigation remain outside current automation. The site’s external map dependency may affect deterministic runs.
+
+### HOME-002 — Verify the eight newest place cards and NEW labels
+
+**Functional area:** Homepage newest locations
+**Priority:** P1
+**Type:** Positive / ordering / boundary / navigation
+**Preconditions:** Homepage is publicly reachable and the public location publication date is available from a verified, read-only source.
+**Test data:** `/`; eight cards in “Нове на сайті”; eight-day `NEW` threshold.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage location cards. **Sitemap patterns:** `/` and `/{category}/{slug}`.
+**Related cases:** HOME-001, HOME-003, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and locate “Нове на сайті”. | The section is visible and contains exactly eight location cards. |
+| 2 | Compare the cards’ publication dates in visual grid order (top-left to bottom-right). | Dates are in descending order from newest to oldest. |
+| 3 | Compare each card’s `NEW` badge with its publication date and the current test time. | A card has `NEW` only when its publication age is strictly less than eight days; cards at or beyond the boundary do not have it. Confirm timezone and exact boundary semantics before treating them as acceptance criteria. |
+| 4 | Open a visible location card. | The destination route and heading identify the selected location. |
+
+**Final expected state:** One matching location detail is open; the homepage ordering and badge rule are supported by verified date data. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION`.
+**Evidence:** Chromium automation verifies eight cards and opens the current first card, but no publication dates were exposed in the inspected homepage card text or sampled location page (`<time>`, visible date, and date metadata were absent); date-order and exact eight-day behavior remain unverified. **Automation notes:** The automated subset does not assert ordering or `NEW` badge age. Do not infer dates from image paths, use fixed slugs, or assert the badge boundary without a trustworthy public date source.
+
+### HOME-003 — Open a Funtime-reviewed location
+
+**Functional area:** Homepage reviewed locations
+**Priority:** P1
+**Type:** Positive / navigation / content
+**Preconditions:** Homepage is publicly reachable and contains the reviewed locations section.
+**Test data:** “Перевірено Funtime”; four reviewed-location cards; destination “Оцінка Funtime” section.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage reviewed-location cards and location detail. **Sitemap patterns:** `/` and `/{category}/{slug}`.
+**Related cases:** HOME-001, HOME-002, LOC-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and locate “Перевірено Funtime”. | The section is visible and contains exactly four location cards, each displaying the Funtime review indicator/label. |
+| 2 | Open one card. | Browser navigates to the selected location’s detail page. |
+| 3 | Inspect the destination. | The page identifies the selected location and contains an “Оцінка Funtime” section. |
+
+**Final expected state:** The selected reviewed location detail is open. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Evidence:** Chromium automation verifies four cards, the Funtime-reviewed indicator on each, and the selected destination’s “Оцінка Funtime” section. **Automation notes:** Select a currently rendered card rather than pinning a volatile place identity.
+
+### HOME-004 — Open a newest collection from the homepage
+
+**Functional area:** Homepage newest collections
+**Priority:** P1
+**Type:** Positive / ordering / navigation
+**Preconditions:** Homepage is publicly reachable; publication dates are available from a verified, read-only source for ordering validation.
+**Test data:** “Нові добірки”; four collection cards.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage collection cards and collection detail. **Sitemap pattern:** `/collections/{category}/{slug}`.
+**Related cases:** HOME-005, NAV-003.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and locate “Нові добірки”. | The section is visible and contains exactly four collection cards. |
+| 2 | Compare publication dates in visual order from left to right. | Collections are ordered newest first and oldest last. |
+| 3 | Open a collection card. | Browser navigates to the selected collection detail and the destination identifies that collection. |
+
+**Final expected state:** The selected collection detail is open and the ordering assertion has a verified date source. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION`.
+**Evidence:** Chromium automation verifies four cards and opens a currently rendered collection detail. Publication dates were not visible in the inspected cards; ordering by date remains unverified. **Automation notes:** The automated subset does not assert newest-first ordering. Do not hardcode current slugs or infer dates from imagery.
+
+### HOME-005 — Open all collections and verify newest-first order
+
+**Functional area:** Homepage collection navigation
+**Priority:** P1
+**Type:** Navigation / ordering
+**Preconditions:** Homepage and `/collections` are publicly reachable; collection publication dates or another validated ordering signal are available.
+**Test data:** “Переглянути всі добірки”; `/collections`.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage CTA and collection listing. **Sitemap pattern:** `/collections`.
+**Related cases:** HOME-004, NAV-003.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and activate “Переглянути всі добірки” beneath “Нові добірки”. | Browser navigates to `/collections` and a collection listing is displayed. |
+| 2 | Inspect the listing from top-left to bottom-right. | The newest collection is at the top-left and the oldest is at the bottom-right; compare dates only through a verified source. |
+| 3 | Open a visible collection entry. | The destination identifies the collection selected from the listing. |
+
+**Final expected state:** A matching collection detail is open from `/collections`. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION`.
+**Evidence:** Chromium automation follows the homepage CTA to `/collections` and verifies the listing heading and a visible first card. The full-list ordering and a date source were not checked. **Automation notes:** Avoid fixed collection identities and exact totals; document date-order verification as blocked if the destination exposes no trustworthy date signal.
+
+### HOME-006 — Open a recent review’s location and verify review identity
+
+**Functional area:** Homepage recent reviews
+**Priority:** P1
+**Type:** Cross-page data consistency / navigation
+**Preconditions:** Homepage contains at least one recent review linked to a public location page.
+**Test data:** A currently visible recent review, its linked location, unique review text/identifier, and optional rating.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage review snippet and location detail review section. **Sitemap patterns:** `/` and `/{category}/{slug}#review{id}` where present.
+**Related cases:** HOME-007, LOC-001, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and select a recent review’s location link. | The chosen review and destination href are identifiable from the visible review block. |
+| 2 | Activate the location link. | Browser navigates to the corresponding location detail page. |
+| 3 | Locate the same review on the destination. | Review text/identity matches the homepage review; when the homepage review has a rating, the same rating is present with that review on the destination. |
+
+**Final expected state:** The destination location page is open with the originating review and any displayed rating identifiable. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Evidence:** Chromium automation selects a currently rendered review with a detail anchor, follows its location link, and verifies the displayed review excerpt and rating when present on the detail page. **Automation notes:** Use currently rendered review content as the test datum, not hard-coded reviewer names or review IDs.
+
+### HOME-007 — Open all reviews from the homepage
+
+**Functional area:** Homepage review navigation
+**Priority:** P2
+**Type:** Navigation
+**Preconditions:** Homepage and public reviews listing are reachable.
+**Test data:** “Переглянути всі відгуки”; `/reviews`.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage CTA and reviews listing. **Sitemap pattern:** `/reviews`.
+**Related cases:** HOME-006, REV-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and activate “Переглянути всі відгуки” beneath “Нові відгуки”. | Browser navigates to `/reviews`. |
+| 2 | Inspect the destination. | The page heading/content identifies the public reviews listing and the page is usable without authentication. |
+
+**Final expected state:** Public reviews listing is open. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Evidence:** Chromium automation follows the homepage CTA to `/reviews` and verifies a level-one heading. **Automation notes:** Assert route and a stable page heading/landmark rather than a volatile review count.
+
+### HOME-008 — Verify homepage social destinations
+
+**Functional area:** Social navigation
+**Priority:** P2
+**Type:** External-link integrity
+**Preconditions:** Homepage is publicly reachable.
+**Test data:** Telegram, Facebook, YouTube, and Instagram links in “Підписуйтесь на нас”.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage social-follow section.
+**Related cases:** HOME-009.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and locate “Підписуйтесь на нас”. | The section contains one link for each requested social platform: Telegram, Facebook, YouTube, and Instagram. |
+| 2 | Inspect each link destination. | Each href points to the corresponding official platform/account destination and is not empty. |
+| 3 | Verify link activation behavior without navigating to third-party services. | Each element is a clickable link; tests do not submit data or depend on third-party availability. |
+
+**Final expected state:** Homepage remains open and all four social destinations are verified. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Evidence:** Four named social links and their destination URLs were observed. **Automation notes:** Assert href/platform destination; do not open external sites during routine E2E runs.
+
+### HOME-009 — Verify all requested footer links
+
+**Functional area:** Footer navigation
+**Priority:** P2
+**Type:** Navigation / link integrity
+**Preconditions:** Homepage is publicly reachable and its footer is rendered.
+**Test data:** Footer rubrics: Архітектура, Культура та мистецтво, Природа, Розваги, Активний відпочинок, Релакс та відпочинок; footer pages: Про нас, Зворотний зв'язок, Реклама на сайті, Статті, Публікації, Прес-релізи, Мапа сайту, Цікаві посилання, Видалення відгуків, Угода користувача, Відмова від відповідальності.
+**Initial state:** Anonymous visitor on the homepage with footer visible or scrolled into view.
+**Template:** Shared site footer. **Sitemap patterns:** `/{category}`, `/about`, `/feedback`, `/pr`, `/articles`, `/publications`, `/press-releases`, `/pagemap`, `/interesting-links`, `/reviews-remove`, `/user-agreement`, `/disclaimer`.
+**Related cases:** HOME-010, HOME-011.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Locate the footer’s rubric and page-link groups. | All six rubric links and all eleven named page links in the test data are visible/clickable in the footer. |
+| 2 | For each requested internal link, inspect its href and activate it. | The browser reaches the corresponding route and displays a page identifying the selected destination; no unrelated route is opened. |
+| 3 | Return to the homepage before validating the next footer destination. | The next link can be checked independently; no application data is changed. |
+
+**Final expected state:** Each requested footer link resolves to its corresponding public route/page. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Evidence:** Chromium automation verifies the requested footer hrefs and follows each route, including `/pr`; it checks that a main landmark renders but does not assert each destination’s unique identity. **Automation notes:** Treat the observed footer href as the route oracle; add destination-specific assertions only where headings are verified. Do not submit the RSS form.
+
+### HOME-010 — Open all six homepage rubrics
+
+**Functional area:** Homepage category navigation
+**Priority:** P1
+**Type:** Navigation / route coverage
+**Preconditions:** Homepage is publicly reachable.
+**Test data:** Архітектура `/architecture`; Культура та мистецтво `/art-and-culture`; Природа `/nature`; Розваги `/entertainments`; Активний відпочинок `/active-leisure`; Релакс та відпочинок `/relaxation-and-recreation`.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage “Рубрики” and top-level category pages. **Sitemap pattern:** `/{category}`.
+**Related cases:** HOME-009, HOME-011, NAV-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and identify the six top-level rubric links in the homepage “Рубрики” section. | Each of the six named rubric links is present and points to its expected category route. |
+| 2 | Activate each rubric link independently. | Browser opens the corresponding category route and the page heading matches the selected rubric. |
+| 3 | Return to `/` and continue with the next rubric. | Each check starts from the homepage and is independent of prior navigation. |
+
+**Final expected state:** The last selected top-level category page is open; each of the six routes has been checked. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Evidence:** Chromium automation opens all six category routes and verifies each destination heading against its rubric label. **Automation notes:** Keep this case limited to the six top-level category routes; child location types are covered separately in HOME-011.
+
+### HOME-011 — Open every location-type link exposed on the homepage
+
+**Functional area:** Homepage location-category navigation
+**Priority:** P1
+**Type:** Navigation / route coverage
+**Preconditions:** Homepage is publicly reachable; homepage “Рубрики” exposes one or more child location-type links.
+**Test data:** Every child link rendered within the six top-level groups in the homepage “Рубрики” section. The inspected homepage currently exposed 24 type links; this observed count is not a permanent site-wide inventory.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage child category links and type catalog pages. **Sitemap pattern:** `/{category}/type/{type}`.
+**Related cases:** HOME-010, NAV-001, CAT-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and enumerate the child location-type links within “Рубрики”. | Every currently exposed child link has a non-empty internal href and descriptive label. |
+| 2 | Activate each enumerated link independently. | Browser navigates to its corresponding type route and the destination heading identifies that category. |
+| 3 | Return to `/` and continue until every link collected in step 1 has been checked. | Every child type link visible at the start of the case has a verified destination; the test makes no claim about categories not exposed on the homepage. |
+
+**Final expected state:** All homepage-exposed location-type routes resolve to their corresponding category pages. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Evidence:** Chromium automation enumerates the currently rendered child links and verifies each route and destination heading; 24 links were rendered during the observed run. The route-family list in `docs/web/SITEMAP.md` is explicitly incomplete. **Automation notes:** Enumerate links from the current homepage rather than assume the sitemap is complete; keep all navigation read-only and avoid hard-coded record identities.
+
+### HOME-012 — Open a homepage article and compare its title
+
+**Functional area:** Homepage article navigation / content consistency
+**Priority:** P2
+**Type:** Navigation / data consistency
+**Preconditions:** Homepage and at least one article destination are publicly reachable.
+**Test data:** A currently rendered card in “Нові статті”; its visible title and internal `/articles/` href.
+**Initial state:** Anonymous visitor on the homepage.
+**Template:** Homepage article card and editorial detail. **Sitemap pattern:** `/articles/{slug}`.
+**Related cases:** HOME-009, ART-001, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open `/` and select a currently rendered article card from “Нові статті”. | The card exposes a non-empty title link and an internal article href. |
+| 2 | Record the normalized visible card title and activate its title link. | Browser navigates to the linked article detail route. |
+| 3 | Read the destination article heading. | The destination heading exactly matches the title displayed on the selected card after whitespace normalization. |
+
+**Final expected state:** The selected article detail is open, and its heading matches the source-card title. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
+**Evidence:** Chromium automation selects a currently rendered article card, follows its internal link, and verifies exact title equality with the destination heading after whitespace normalization. **Automation notes:** Select a current card dynamically; compare normalized visible titles rather than pinning a volatile article slug.
+
 ## Automated implementation and execution mapping
 
 The status fields in the cases above continue to describe the manual catalog scenarios; this mapping records the automated subset and actual execution. A passing automated subset does not complete every step or acceptance criterion in a broader manual case.
@@ -606,5 +849,17 @@ The status fields in the cases above continue to describe the manual catalog sce
 | REV-001 | Partial: sort menu opens and exposes the four observed choices; selection/order behavior is not asserted | Chromium: PASS (2026-10-13) |
 | ERR-001 | Three representative known routes load directly and after refresh | Chromium: PASS |
 | AUTH-002 | Positive login followed by read-only planning-page access; does not implement saved/visited transitions, cleanup, or logout | Chromium: SKIPPED; `APP_EMAIL`/`APP_PASSWORD` were not available to the test process |
+| HOME-001 | Partial: map action, `/#map` URL, and visible map region; marker/card selection and destination not verified | Chromium: PASS (2026-10-14) |
+| HOME-002 | Partial: exactly eight cards and first-card label matches destination heading; publication-date ordering and eight-day `NEW` rule not asserted | Chromium: PASS (2026-10-14) |
+| HOME-003 | Four reviewed cards and indicators; selected card identity matches destination heading and contains “Оцінка Funtime” | Chromium: PASS (2026-10-14) |
+| HOME-004 | Four collection cards; selected card title exactly matches detail heading after whitespace normalization; newest-first date order not asserted | Chromium: PASS (2026-10-14) |
+| HOME-005 | CTA opens `/collections`; first listed collection title exactly matches detail heading after whitespace normalization; listing date order not asserted | Chromium: PASS (2026-10-14) |
+| HOME-006 | Current review excerpt and optional rating verified on linked location detail | Chromium: PASS (2026-10-14) |
+| HOME-007 | CTA opens `/reviews` and public page heading is visible | Chromium: PASS (2026-10-14) |
+| HOME-008 | Four social links expose expected platform-domain hrefs; external sites are not opened | Chromium: PASS (2026-10-14) |
+| HOME-009 | Requested footer links’ hrefs and route navigation verified; destination identity is only checked by main landmark visibility | Chromium: PASS (2026-10-14) |
+| HOME-010 | All six top-level rubric routes opened and destination headings matched | Chromium: PASS (2026-10-14) |
+| HOME-011 | All currently rendered homepage location-type links opened and destination headings matched | Chromium: PASS (2026-10-14) |
+| HOME-012 | First currently rendered article card title exactly matches the destination article heading after whitespace normalization | Chromium: PASS (2026-10-14) |
 
-Public journeys were executed only in Chromium; Firefox and WebKit were discovered but not run. The authenticated case is an intentionally limited subset of `AUTH-002`, not completion of its state lifecycle. The manual statuses above remain unchanged.
+Public journeys were executed only in Chromium; Firefox and WebKit were discovered but not run. Homepage cases ran with `npm test -- --grep "HOME-" --project=chromium --workers=3` (12 passed). The authenticated case is an intentionally limited subset of `AUTH-002`, not completion of its state lifecycle. The manual statuses above remain unchanged.

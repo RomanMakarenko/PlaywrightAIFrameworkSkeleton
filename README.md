@@ -69,13 +69,26 @@ The fresh-login check and reusable authenticated tests run only in Chromium. The
 rm -f playwright/.auth/user.json
 ```
 
-Set both `APP_EMAIL` and `APP_PASSWORD` in the local test process using an approved secret manager or shell environment, then explicitly run the authenticated Chromium project:
+Run public and authenticated tests independently:
 
 ```bash
+# Public browser projects only; these use fresh, unauthenticated contexts
+npm test -- --project=chromium --project=firefox --project=webkit
+
+# Authenticated Chromium tests only (first set both variables securely in the test process)
 npm test -- --project=authenticated-chromium
+
+# Full suite: public projects plus authenticated Chromium when credentials are set
+npm test
 ```
 
-With neither variable set, Playwright leaves the auth projects out and continues public tests; a partial pair is a configuration error. Dotenv loading remains disabled. In GitHub Actions, these secrets are used only for trusted non-pull-request events (protected-branch pushes or manual dispatch); they are never passed to pull requests or forks. CI keeps authenticated reports/results in separate subdirectories, and the saved state is not uploaded.
+The fresh-login check `AUTH-002` is part of the ordinary Chromium project when credentials are set. To run only public journeys in the browser projects while credentials remain available, exclude that login check:
+
+```bash
+npm test -- --project=chromium --project=firefox --project=webkit --grep-invert AUTH-002
+```
+
+Set both `APP_EMAIL` and `APP_PASSWORD` in the local test process using an approved secret manager or shell environment; do not put their values in source, command examples, or `.env`. With neither variable set, Playwright omits the authenticated project and the credential-gated login check skips; a partial pair is a configuration error. Dotenv loading remains disabled. In GitHub Actions, these secrets are used only for trusted pushes to `main`/`master` or manual dispatch on those branches; they are never passed to pull requests or forks. CI keeps authenticated reports/results in separate subdirectories, and the saved state is not uploaded.
 
 ## Run tests in Docker
 

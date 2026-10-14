@@ -548,6 +548,411 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 **Final expected state:** Batch progression, duplicate behavior, and exhaustion state are documented; no fixed page size or total is asserted. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` for terminal behavior and refresh persistence; one expansion was observed only.
 **Evidence:** One activation expanded the observed list from 15 to 30 without changing URL. **Automation notes:** Avoid fixed record counts and ordering; use card identity/href comparisons.
 
+### CAT-003 — Expand the category introduction
+
+**Functional area:** Category catalog / introduction
+**Priority:** P2
+**Type:** Positive / content display
+**Preconditions:** A category page with a truncated introduction is available.
+**Test data:** A current category route with the “Показати весь текст” control.
+**Initial state:** Anonymous visitor; category introduction is collapsed.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** NAV-002, HOME-010.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open the category page and inspect its introduction and expand control. | The introduction is initially truncated and “Показати весь текст” is available. This initial state must be confirmed on the selected route. |
+| 2 | Activate “Показати весь текст”. | The full introduction becomes visible without navigating away from the category page. |
+
+**Final expected state:** The introduction is expanded. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (route-specific behavior and whether a collapse action exists are unconfirmed).
+**Evidence:** Draft scenario only; no live interaction recorded. **Automation notes:** Assert the state change and visible text; do not assume reversible collapse behavior unless verified.
+
+### CAT-004 — Expand the category map
+
+**Functional area:** Category catalog / map
+**Priority:** P2
+**Type:** Positive / display
+**Preconditions:** The category page exposes “Показати на мапі всі місця”.
+**Test data:** A category with at least one location represented on the map.
+**Initial state:** Anonymous visitor on the category page with the map collapsed or hidden.
+**Template:** Category catalog / map. **Sitemap pattern:** `/{category}`.
+**Related cases:** HOME-001, CAT-005, CAT-006.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open the category page and activate “Показати на мапі всі місця”. | A map becomes visible or expands on the page. |
+| 2 | Inspect the displayed map. | The map presents markers for locations belonging to the current category; exact count and map-loading signal require verification. |
+
+**Final expected state:** The category map is visible. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (category-map behavior and marker coverage have not been inspected).
+**Evidence:** Draft scenario only; no live interaction recorded. **Automation notes:** Wait for the map’s observable ready state; do not assert a fixed marker count without stable test data.
+
+### CAT-005 — Match map marker icons to location types
+
+**Functional area:** Category catalog / map markers
+**Priority:** P2
+**Type:** Data consistency / visual mapping
+**Preconditions:** The map displays locations of at least two types with distinct expected icons; an approved type-to-icon mapping is available.
+**Test data:** Two or more category locations with known types, such as a castle and a fortress.
+**Initial state:** Category map is expanded.
+**Template:** Category catalog / map. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-004, LOC-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Identify map markers for locations whose types are known. | Each marker can be associated with its location using a stable accessible or test attribute. |
+| 2 | Compare each marker icon with the approved mapping for its location type. | Every checked marker uses the icon assigned to that type; distinct types use their designated icons. |
+
+**Final expected state:** Marker/type correspondence is checked without changing site data. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (icon mapping and stable marker identity signal are not established).
+**Evidence:** Draft scenario only; no live inspection recorded. **Automation notes:** Prefer accessible labels or stable attributes; use screenshot comparison only if a maintained visual baseline is approved.
+
+### CAT-006 — Open a location preview from a map marker
+
+**Functional area:** Category catalog / map markers
+**Priority:** P2
+**Type:** Positive / data consistency
+**Preconditions:** The expanded category map has at least one marker.
+**Test data:** A current location marker with a distinguishable name.
+**Initial state:** Category map is visible; no marker preview is open.
+**Template:** Category catalog / map. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-004, CAT-007, LOC-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Activate a map marker. | A location preview card opens for the selected marker. |
+| 2 | Compare the preview identity with the selected marker’s location. | The preview identifies the location represented by that marker, not a different map result. |
+
+**Final expected state:** The selected location preview is visible. **Cleanup:** Close the preview if a visible close control exists; otherwise leave the page unchanged. **Status:** `NEEDS_VERIFICATION` (marker interaction and identity signal are unverified).
+**Evidence:** Draft scenario only; no live inspection recorded. **Automation notes:** Use a stable marker identity; avoid relying on geographic pixel coordinates.
+
+### CAT-007 — Navigate to a location from its map preview
+
+**Functional area:** Category catalog / map-to-location navigation
+**Priority:** P2
+**Type:** Navigation / data consistency
+**Preconditions:** A map marker preview is open and contains a location image or title link.
+**Test data:** The selected location’s displayed preview title and destination route.
+**Initial state:** Category map is visible with the selected location preview open.
+**Template:** Category catalog / map and place detail. **Sitemap pattern:** `/{category}` → `/{category}/{slug}`.
+**Related cases:** CAT-006, LOC-001, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Record the location title in the preview, then activate its image. | The corresponding location detail opens. |
+| 2 | Return to the category page and repeat using the preview title. | The title link opens the same location detail. |
+| 3 | Compare each destination heading with the preview title. | The destination identifies the location shown in the preview; navigation context (same/new tab) matches observed site behavior. |
+
+**Final expected state:** The selected location detail is open; the originating category remains available according to actual tab behavior. **Cleanup:** Close any test-opened tab. **Status:** `NEEDS_VERIFICATION` (click targets and tab behavior are unverified).
+**Evidence:** Draft scenario only; no live navigation recorded. **Automation notes:** Compare normalized visible titles and destinations; do not assume a new tab.
+
+### CAT-008 — Check the category’s initial card set
+
+**Functional area:** Category catalog / location cards and advertising
+**Priority:** P1
+**Type:** Positive / count / content
+**Preconditions:** The selected category has enough available entries to fill the initial list.
+**Test data:** Category route and currently rendered location/ad cards.
+**Initial state:** Anonymous visitor on a freshly loaded category page.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-010, CAT-011, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open the category page and count the initial rendered cards, distinguishing locations from advertising. | When enough content exists, the intended initial set is 16 cards: 15 location cards and one advertising card. Confirm whether this count includes the ad before treating it as a fixed criterion. |
+| 2 | Compare each location card’s identity and each ad’s labeling. | Location entries are distinguishable from the advertised object; no duplicate or empty cards are counted as locations. |
+| 3 | If fewer than the initial target are available, inspect the rendered list and its count. | The page shows available entries without asserting a full batch when the category has insufficient content. |
+
+**Final expected state:** Initial category list is inspected without changing data. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (15 + 1 versus 16 total and the ad’s counting rules are unresolved).
+**Evidence:** Draft scenario only; no live count or ad placement recorded. **Automation notes:** Use semantic card identification; do not pin volatile location identities or totals until product rules are confirmed.
+
+### CAT-009 — Verify the desktop category-card grid
+
+**Functional area:** Category catalog / responsive layout
+**Priority:** P2
+**Type:** Layout / visual
+**Preconditions:** The category page has at least four visible cards; the approved desktop viewport is specified.
+**Test data:** A category page with a populated card grid.
+**Initial state:** Anonymous visitor at the agreed desktop viewport.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-008.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Open the category page at the approved desktop viewport. | The location/ad card grid renders without horizontal page overflow. |
+| 2 | Count card columns in the grid. | Four cards appear per row where enough cards are available, as specified for desktop. |
+
+**Final expected state:** The grid remains visible at the approved viewport. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (viewport boundaries and actual grid behavior are not yet confirmed).
+**Evidence:** Draft scenario only; no viewport inspection recorded. **Automation notes:** Define the viewport and layout tolerance before adding a responsive or screenshot assertion.
+
+### CAT-010 — Load another category-card batch
+
+**Functional area:** Category catalog / pagination and list boundaries
+**Priority:** P1
+**Type:** Positive / boundary / data consistency
+**Preconditions:** More category entries exist than are initially displayed and “Показати ще” is available.
+**Test data:** Category route; record current card identities, counts, and URL before each activation.
+**Initial state:** Category is loaded in a new anonymous context.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-001, CAT-002, CAT-008, CAT-011.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Record the visible list and activate “Показати ще” once. | Additional entries appear; prior location cards remain visible and the route behavior is recorded. |
+| 2 | Compare card identities before and after expansion. | Newly displayed location cards do not duplicate earlier locations unless the product explicitly allows repeats. |
+| 3 | Repeat while the control remains available, observing the list after each activation. | The list grows when more entries are available; terminal control behavior is recorded rather than assumed. |
+
+**Final expected state:** The list is expanded as far as the case permits. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (batch size, URL behavior, and terminal state need category-specific confirmation).
+**Evidence:** Draft scenario only; this main-category flow has not been observed. Type-catalog batch behavior is covered separately by CAT-001 and CAT-002. **Automation notes:** Assert a positive increase and stable prior identities, not a fixed batch size or total.
+
+### CAT-011 — Check advertising placement during list expansion
+
+**Functional area:** Category catalog / advertising integration
+**Priority:** P2
+**Type:** Content / boundary
+**Preconditions:** An advertising card is eligible for the category and list expansion can be triggered.
+**Test data:** Category route; distinguishable advertising label and location-card identities.
+**Initial state:** Initial category card list is loaded.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-008, CAT-010.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Inspect the initial list for the advertising card and its disclosure/label. | The ad appears in the approved position and is clearly distinguishable from ordinary locations. |
+| 2 | Activate “Показати ще” once when available and inspect the newly displayed batch. | Ad insertion/repetition follows the confirmed placement and frequency rules; the ad is not mistaken for a location. |
+| 3 | Continue through another batch if available. | Ad frequency and total card-count behavior match the confirmed rule, without assuming an ad appears in every batch. |
+
+**Final expected state:** Ad placement and labeling are recorded. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (position, frequency, and whether the ad counts toward the batch remain unresolved).
+**Evidence:** Draft scenario only; no live ad inspection recorded. **Automation notes:** Assert only stable disclosure and placement rules after product confirmation; do not assert third-party ad content.
+
+### CAT-012 — Open a location-type catalog from the category page
+
+**Functional area:** Category catalog / type navigation
+**Priority:** P2
+**Type:** Navigation / data consistency
+**Preconditions:** The “Переглянути окремо” block contains at least one location type.
+**Test data:** A visible type link, such as “Фортеці”, and its destination route.
+**Initial state:** Anonymous visitor on the parent category page.
+**Template:** Category and type catalog. **Sitemap pattern:** `/{category}` → `/{category}/type/{type}`.
+**Related cases:** NAV-002, HOME-011, CAT-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Locate a type link in “Переглянути окремо” and record its label and href. | The link is associated with the displayed type and has a destination. |
+| 2 | Activate the type link. | The corresponding type catalog opens and identifies the selected type in its heading/content. |
+
+**Final expected state:** The selected type catalog is open. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (category-specific type content and destination identity require confirmation).
+**Evidence:** Draft scenario only; no live navigation recorded. **Automation notes:** Validate link destination and page identity, not just successful navigation.
+
+### CAT-013 — Open a collection from its category-page card
+
+**Functional area:** Category catalog / collection navigation
+**Priority:** P2
+**Type:** Navigation / data consistency
+**Preconditions:** A collection card with image and title is rendered on the category page.
+**Test data:** A currently rendered collection card’s visible title and destination.
+**Initial state:** Anonymous visitor on the category page.
+**Template:** Category catalog and collection detail. **Sitemap pattern:** `/{category}` → `/collections/{category}/{slug}`.
+**Related cases:** NAV-003, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Record a collection card’s title and activate its image. | The matching collection detail opens. |
+| 2 | Return to the category page and activate the same card’s title. | The same collection detail opens. |
+| 3 | Compare the card title with the destination heading. | The collection detail heading matches the card title after whitespace normalization. |
+
+**Final expected state:** The selected collection detail is open. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (presence and behavior of collection cards on the target category page are unconfirmed).
+**Evidence:** Draft scenario only; no category-to-collection transition recorded. **Automation notes:** Select a currently rendered card dynamically; compare displayed identity with destination heading.
+
+### CAT-014 — Show the category sort options
+
+**Functional area:** Category catalog / sorting controls
+**Priority:** P1
+**Type:** Positive / control availability
+**Preconditions:** The category page exposes a “Сортувати” control.
+**Test data:** Exact sort labels rendered by the target category page.
+**Initial state:** Category list is loaded; sort menu is closed.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-015–CAT-023.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Activate “Сортувати”. | A sort menu or popup opens. |
+| 2 | Inspect its available choices. | The confirmed options for popularity, default order, date added, newest/oldest, alphabetic ascending/descending, and rating ascending/descending are visible. Exact labels and whether all are separate options must be verified. |
+
+**Final expected state:** The menu is open and no sort choice has been applied. **Cleanup:** Close the menu without selecting an option. **Status:** `NEEDS_VERIFICATION` (menu contents on this page are unverified).
+**Evidence:** Draft scenario only; no category sort menu was inspected. **Automation notes:** Use the observed accessible labels; keep option-availability coverage distinct from ordering behavior.
+
+### CAT-015 — Apply the default category order
+
+**Functional area:** Category catalog / sorting
+**Priority:** P2
+**Type:** Positive / data consistency
+**Preconditions:** The default order is defined or the initial order can be recorded for comparison.
+**Test data:** At least three identifiable category locations.
+**Initial state:** Category list is loaded and the sort menu is available.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-014, CAT-010.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Record the current order of location cards. | The baseline order is captured without assuming it is correct. |
+| 2 | Select “За замовчуванням”. | The list is set to the product-defined default order. |
+| 3 | Compare the resulting order with the confirmed rule or baseline. | The order matches the defined default; no unsupported ordering rule is inferred. |
+
+**Final expected state:** Category list uses the default sort. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (the default ordering rule is not defined in the draft).
+**Evidence:** Read-only inspection confirmed the menu option is selectable, but the product-defined default ordering rule is not exposed by the category cards. **Automation notes:** Automated order assertions remain blocked until a stable expected dataset or verified default rule is available; selection state alone does not verify ordering.
+
+### CAT-016 — Sort category locations by popularity
+
+**Functional area:** Category catalog / sorting
+**Priority:** P2
+**Type:** Positive / data ordering
+**Preconditions:** Popularity metric, its direction, and deterministic test data are known.
+**Test data:** At least three locations with distinct verified popularity values.
+**Initial state:** Category list is loaded.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-014, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Select the popularity sort option. | The location list updates to the popularity order. |
+| 2 | Compare the displayed location sequence with the verified popularity values. | Values are ordered in the product-defined direction; ties follow the confirmed tie-break rule. |
+
+**Final expected state:** The popularity sort is selected. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (metric source, direction, and tie-break behavior are unknown).
+**Evidence:** The live sort menu presents “за популярністю” as a section heading rather than a selectable option; no popularity value or metric is exposed on category cards. **Automation notes:** Do not infer popularity from card position, views, or ratings; use an approved data oracle.
+
+### CAT-017 — Sort category locations by date added
+
+**Functional area:** Category catalog / sorting
+**Priority:** P2
+**Type:** Positive / data ordering
+**Preconditions:** The date-added field is available and its sort direction is defined.
+**Test data:** At least three locations with distinct verified creation/addition dates.
+**Initial state:** Category list is loaded.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-014, CAT-018, CAT-019.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Select “За датою додавання”, if this is a distinct option in the UI. | The list is sorted using the date-added field. |
+| 2 | Compare card order with verified date-added values. | The order follows the defined direction and tie-break rule. |
+
+**Final expected state:** Date-added sorting is selected. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (direction and distinction from newest/oldest publication-date sorting are unresolved).
+**Evidence:** The live sort menu presents “за датою додавання” as a section heading rather than a selectable option; no date-added field is visible on category cards. **Automation notes:** Keep this case distinct from CAT-018/019 only if the product defines separate fields or semantics.
+
+### CAT-018 — Sort newest published locations first
+
+**Functional area:** Category catalog / sorting
+**Priority:** P2
+**Type:** Positive / data ordering
+**Preconditions:** Publication dates for the test locations are visible or otherwise available from a trusted read-only data source.
+**Test data:** At least three locations with distinct publication dates.
+**Initial state:** Category list is loaded.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-014, CAT-017, CAT-019.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Select “Спочатку найновіші”. | The location list updates to newest-first order. |
+| 2 | Compare the first, intermediate, and last location dates. | Dates are monotonically descending: newest first and oldest last; advertising entries are excluded from the location-order assertion. |
+
+**Final expected state:** Locations are ordered newest to oldest by the confirmed date field. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (the sort option and trustworthy date signal are unverified).
+**Evidence:** On `/nature`, category cards exposed titles, links, images, and non-numeric badge/empty rating blocks, but no publication dates. An image-path year/month is not a trusted date oracle. **Automation notes:** Do not use volatile labels such as “new” as a substitute for an exact date oracle.
+
+### CAT-019 — Sort oldest published locations first
+
+**Functional area:** Category catalog / sorting
+**Priority:** P2
+**Type:** Positive / data ordering
+**Preconditions:** Same verified date source and test locations as CAT-018.
+**Test data:** At least three locations with distinct publication dates.
+**Initial state:** Category list is loaded.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-014, CAT-017, CAT-018.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Select “Спочатку найстаріші”. | The location list updates to oldest-first order. |
+| 2 | Compare the sequence with verified publication dates. | Dates are monotonically ascending: oldest first and newest last; advertising entries are excluded from the location-order assertion. |
+
+**Final expected state:** Locations are ordered oldest to newest by the confirmed date field. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (the date field and ordering semantics are unverified).
+**Evidence:** On `/nature`, category cards exposed titles, links, images, and non-numeric badge/empty rating blocks, but no publication dates. An image-path year/month is not a trusted date oracle. **Automation notes:** Compare against the same date oracle used by CAT-018 and verify reverse ordering where ties do not apply.
+
+### CAT-020 — Sort location titles from A to Я
+
+**Functional area:** Category catalog / sorting
+**Priority:** P2
+**Type:** Positive / data ordering
+**Preconditions:** Locale-aware title ordering rules are defined; at least three distinct titles are available.
+**Test data:** Current category titles including Ukrainian characters where possible.
+**Initial state:** Category list is loaded.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-014, CAT-021.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Select the ascending alphabetical sort option. | Location cards are ordered alphabetically from А to Я according to the confirmed Ukrainian locale rules. |
+| 2 | Compare adjacent displayed titles. | Titles follow the defined collation behavior for case, punctuation, and Ukrainian letters. |
+
+**Final expected state:** The list uses ascending alphabetical order. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (exact UI label and locale collation rules are not confirmed).
+**Evidence:** Read-only selection on `/nature` rendered visible location titles in ascending order matching `Intl.Collator('uk-UA', { sensitivity: 'base' })`; automated coverage now checks the complete visible title sequence. **Automation notes:** The comparator matches this sample; broader punctuation, case, and tie requirements remain unconfirmed.
+
+### CAT-021 — Sort location titles from Я to A
+
+**Functional area:** Category catalog / sorting
+**Priority:** P2
+**Type:** Positive / data ordering
+**Preconditions:** Same locale-aware title rules and test data as CAT-020.
+**Test data:** At least three distinct location titles.
+**Initial state:** Category list is loaded.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-014, CAT-020.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Select the descending alphabetical sort option. | Location cards are ordered from Я to А under the confirmed Ukrainian locale rules. |
+| 2 | Compare displayed titles with the descending locale-aware sequence. | The list follows reverse alphabetical order, with case and punctuation handled by the defined collation rules. |
+
+**Final expected state:** The list uses descending alphabetical order. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (exact UI label and locale collation rules are not confirmed).
+**Evidence:** Read-only selection on `/nature` rendered visible location titles in descending order matching the reverse of `Intl.Collator('uk-UA', { sensitivity: 'base' })`; automated coverage now checks the complete visible title sequence. **Automation notes:** The comparator matches this sample; broader punctuation, case, and tie requirements remain unconfirmed.
+
+### CAT-022 — Sort locations from highest to lowest rating
+
+**Functional area:** Category catalog / sorting
+**Priority:** P2
+**Type:** Positive / data ordering
+**Preconditions:** Ratings are available for test locations and treatment of missing ratings is defined.
+**Test data:** At least three locations with distinct verified ratings; include unrated entries only if their ordering rule is agreed.
+**Initial state:** Category list is loaded.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-014, CAT-023, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Select “Спочатку з високим рейтингом”. | Location cards update to descending rating order. |
+| 2 | Compare each displayed location’s rating with the verified data. | Highest rated location appears first and the remaining rated locations follow descending order; tie and missing-rating behavior follows the confirmed rule. |
+
+**Final expected state:** Locations are ordered from high to low rating. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (rating source, tie handling, and missing-rating placement are unknown).
+**Evidence:** On `/nature`, category cards had no numeric rating text; rating blocks were empty or showed non-rating “new”/Funtime-checked badges. **Automation notes:** Do not treat an absent rating as zero unless product behavior confirms it.
+
+### CAT-023 — Sort locations from lowest to highest rating
+
+**Functional area:** Category catalog / sorting
+**Priority:** P2
+**Type:** Positive / data ordering
+**Preconditions:** Same verified ratings and missing-rating rules as CAT-022.
+**Test data:** At least three locations with distinct verified ratings.
+**Initial state:** Category list is loaded.
+**Template:** Category catalog. **Sitemap pattern:** `/{category}`.
+**Related cases:** CAT-014, CAT-022, DATA-001.
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Select “Спочатку з низьким рейтингом”. | Location cards update to ascending rating order. |
+| 2 | Compare each displayed location’s rating with the verified data. | Lowest rated location appears first and the remaining rated locations follow ascending order; tie and missing-rating behavior follows the confirmed rule. |
+
+**Final expected state:** Locations are ordered from low to high rating. **Cleanup:** None. **Status:** `NEEDS_VERIFICATION` (rating source, tie handling, and missing-rating placement are unknown).
+**Evidence:** On `/nature`, category cards had no numeric rating text; rating blocks were empty or showed non-rating “new”/Funtime-checked badges. **Automation notes:** Compare with the same data oracle as CAT-022; do not assume how unrated entries are placed.
+
 ### REV-002 — Review filters produce a recorded list state and can be reset
 
 **Functional area:** Reviews / filters
@@ -757,10 +1162,10 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 **Functional area:** Footer navigation
 **Priority:** P2
 **Type:** Navigation / link integrity
-**Preconditions:** Homepage is publicly reachable and its footer is rendered.
+**Preconditions:** The public `/architecture` category page and homepage are reachable, with the shared footer rendered.
 **Test data:** Footer rubrics: Архітектура, Культура та мистецтво, Природа, Розваги, Активний відпочинок, Релакс та відпочинок; footer pages: Про нас, Зворотний зв'язок, Реклама на сайті, Статті, Публікації, Прес-релізи, Мапа сайту, Цікаві посилання, Видалення відгуків, Угода користувача, Відмова від відповідальності.
-**Initial state:** Anonymous visitor on the homepage with footer visible or scrolled into view.
-**Template:** Shared site footer. **Sitemap patterns:** `/{category}`, `/about`, `/feedback`, `/pr`, `/articles`, `/publications`, `/press-releases`, `/pagemap`, `/interesting-links`, `/reviews-remove`, `/user-agreement`, `/disclaimer`.
+**Initial state:** Anonymous visitor on `/architecture`; the same footer is also checked on the homepage before link navigation.
+**Template:** Shared site footer. Observed and automated on `/` and `/architecture`; this does not constitute exhaustive verification of every route. **Sitemap patterns:** `/{category}`, `/about`, `/feedback`, `/pr`, `/articles`, `/publications`, `/press-releases`, `/pagemap`, `/interesting-links`, `/reviews-remove`, `/user-agreement`, `/disclaimer`.
 **Related cases:** HOME-010, HOME-011.
 
 | Step | Action | Expected result |
@@ -770,7 +1175,7 @@ Run `NAV-001`, `CAT-001`, `LOC-001`, `REL-001`, and `ART-001` first in a safe en
 | 3 | Return to the homepage before validating the next footer destination. | The next link can be checked independently; no application data is changed. |
 
 **Final expected state:** Each requested footer link resolves to its corresponding public route/page. **Cleanup:** None. **Status:** `NOT_EXECUTED`.
-**Evidence:** Chromium automation verifies the requested footer hrefs and follows each route, including `/pr`; it checks that a main landmark renders but does not assert each destination’s unique identity. **Automation notes:** Treat the observed footer href as the route oracle; add destination-specific assertions only where headings are verified. Do not submit the RSS form.
+**Evidence:** Chromium automation verifies the “Рубрики” and “Сторінки” headings and requested footer links with their expected hrefs on `/architecture`, then follows each route from the homepage, including `/pr`; it checks that a main landmark renders but does not assert each destination’s unique identity. This samples the footer on `/` and `/architecture` and does not independently verify every site route. **Automation notes:** Treat the observed footer href as the route oracle; add destination-specific assertions only where headings are verified. Do not submit the RSS form.
 
 ### HOME-010 — Open all six homepage rubrics
 
@@ -861,5 +1266,26 @@ The status fields in the cases above continue to describe the manual catalog sce
 | HOME-010 | All six top-level rubric routes opened and destination headings matched | Chromium: PASS (2026-10-14) |
 | HOME-011 | All currently rendered homepage location-type links opened and destination headings matched | Chromium: PASS (2026-10-14) |
 | HOME-012 | First currently rendered article card title exactly matches the destination article heading after whitespace normalization | Chromium: PASS (2026-10-14) |
+| CAT-003 | Partial: category “Показати весь текст” control can be activated and dismissed; expansion content/state is not confirmed | Chromium: PASS (2026-10-14) |
+| CAT-004 | Partial: category map action sets `/#map` and exposes the named map region; marker contents are not asserted | Chromium: PASS (2026-10-14) |
+| CAT-005 | FIXME: map markers have no stable accessible identity and no approved type-to-icon mapping | Chromium: SKIPPED (2026-10-14) |
+| CAT-006 | FIXME: unnamed map controls do not allow a stable marker-to-preview identity assertion | Chromium: SKIPPED (2026-10-14) |
+| CAT-007 | FIXME: preview-to-location identity/navigation depends on the unresolved CAT-006 marker signal | Chromium: SKIPPED (2026-10-14) |
+| CAT-008 | Partial: visible location-card count matches the page’s dynamic location-count label; ad identity/counting is not asserted | Chromium: PASS (2026-10-14) |
+| CAT-009 | Partial: four grid columns and no horizontal overflow at 1440×900; responsive breakpoint/tolerance not asserted | Chromium: PASS (2026-10-14) |
+| CAT-010 | One category batch increases location cards, preserves prior hrefs, and leaves URL unchanged | Chromium: PASS (2026-10-14) |
+| CAT-011 | FIXME: ad identity, disclosure, count treatment, placement, and repetition rules are unresolved | Chromium: SKIPPED (2026-10-14) |
+| CAT-012 | First currently rendered category type link opens a route whose heading matches the link label | Chromium: PASS (2026-10-14) |
+| CAT-013 | Partial: first collection card image and title links open the same collection and match its heading | Chromium: PASS (2026-10-14) |
+| CAT-014 | The seven currently selectable sort choices are visible; popularity/date-added labels remain non-selectable section headings | Chromium: PASS (2026-10-14) |
+| CAT-015 | FIXME: default order has no independently verified rule or expected sequence | Chromium: SKIPPED (2026-10-14) |
+| CAT-016 | FIXME: “за популярністю” is a section heading, not a selectable option; metric/oracle are unknown | Chromium: SKIPPED (2026-10-14) |
+| CAT-017 | FIXME: “за датою додавання” is a section heading, not a selectable option; date field/rule are unknown | Chromium: SKIPPED (2026-10-14) |
+| CAT-018 | FIXME: category cards expose no publication dates to verify newest-first order | Chromium: SKIPPED (2026-10-14) |
+| CAT-019 | FIXME: category cards expose no publication dates to verify oldest-first order | Chromium: SKIPPED (2026-10-14) |
+| CAT-020 | Partial: rendered location-card titles are verified in ascending Ukrainian locale order on `/nature` | Chromium: PASS (2026-10-14) |
+| CAT-021 | Partial: rendered location-card titles are verified in descending Ukrainian locale order on `/nature` | Chromium: PASS (2026-10-14) |
+| CAT-022 | FIXME: category cards expose no numeric ratings to verify high-to-low order | Chromium: SKIPPED (2026-10-14) |
+| CAT-023 | FIXME: category cards expose no numeric ratings to verify low-to-high order | Chromium: SKIPPED (2026-10-14) |
 
 Public journeys were executed only in Chromium; Firefox and WebKit were discovered but not run. Homepage cases ran with `npm test -- --grep "HOME-" --project=chromium --workers=3` (12 passed). The authenticated case is an intentionally limited subset of `AUTH-002`, not completion of its state lifecycle. The manual statuses above remain unchanged.

@@ -50,7 +50,7 @@ This plan follows the broad organization of the Java framework plan while adapti
 
 ### Phase 2 — Configuration, Environment, and Project Layout
 
-- [x] Define the responsibilities and naming conventions for `src/pages`, `components`, `fixtures`, `api`, `models`, `data`, `config`, and `utils`, plus `tests/e2e`, `api`, `integration`, and `visual`.
+- [x] Define the responsibilities and naming conventions for `src/pages`, `components`, `api`, `models`, `data`, `config`, and `utils`, plus test-scoped fixtures in `tests/fixtures.ts` and `tests/e2e`, `api`, `integration`, and `visual`.
 - [x] Add typed configuration for base URLs and any required environment selection; validate required values at startup with actionable errors.
 - [x] Provide a safe `.env.example` and ignore real local environment files. Use shell/CI environment variables for secrets; do not place secret values in defaults or examples.
 - [x] Configure `baseURL` and other shared options in `playwright.config.ts` where appropriate, rather than duplicating them in tests.

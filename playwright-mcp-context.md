@@ -23,12 +23,12 @@ src/
   components/   # reusable UI component abstractions, when justified
   config/       # framework configuration
   data/         # reusable framework data and models, not a dump of test fixtures
-  fixtures/     # typed Playwright fixtures, only when shared setup is useful
   models/       # shared TypeScript models
   pages/        # Page Objects for meaningful application pages
   utils/        # implemented data, file, DB, and UI/date utilities
 
 tests/
+  fixtures.ts   # typed test-scoped fixtures, only when shared setup is useful
   api/          # API specifications
   db/           # database specifications (only with verified DB access/schema)
   e2e/          # end-to-end user journeys
@@ -46,7 +46,7 @@ prompts/utilities/prompt.md
 playwright.config.ts
 ```
 
-This is a guide to the present layout, not a demand to populate every directory. `CLAUDE.md` directs reusable framework code to `src/` and tests to `tests/`; therefore, prefer `src/api/` for new reusable API code. Root `api/endpoints/` and `api/schemas/` also exist as scaffold paths: do not maintain duplicate versions of the same module in both locations. If a task explicitly requires using those root paths, follow the task and explain the placement.
+This is a guide to the present layout, not a demand to populate every directory. `CLAUDE.md` directs reusable framework code to `src/` and tests to `tests/`; typed Playwright Test fixtures belong in `tests/fixtures.ts`, not `src/`. The current fixture extends the test with a `CatalogPage`; authentication remains configured at the Playwright project level through `storageState`, not a custom auth fixture. Prefer `src/api/` for new reusable API code. Root `api/endpoints/` and `api/schemas/` also exist as scaffold paths: do not maintain duplicate versions of the same module in both locations. If a task explicitly requires using those root paths, follow the task and explain the placement.
 
 Keep `src/data/` for framework-owned reusable data/model code and `tests/testdata/` for static inputs consumed by tests. Keep generated reports and Playwright results separate from source and test data.
 

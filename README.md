@@ -161,12 +161,12 @@ src/
   components/   # reusable UI components
   config/       # framework configuration
   data/         # shared data and models
-  fixtures/     # typed Playwright fixtures when useful
   models/       # shared TypeScript models
   pages/        # Page Objects
   utils/        # existing utilities
 
 tests/
+  fixtures.ts   # typed test-scoped fixtures when useful
   api/          # API tests
   db/           # database tests
   e2e/          # end-to-end journeys
@@ -175,7 +175,7 @@ tests/
   visual/       # visual checks
 ```
 
-Keep reusable framework code in `src/` and test-specific scenarios and files in `tests/`. Some directories are scaffolding for future work; their presence does not mean the corresponding integration is configured or complete.
+Keep reusable framework code in `src/` and test-specific scenarios, fixtures, and files in `tests/`. Typed shared fixtures live in `tests/fixtures.ts` (currently the `CatalogPage` fixture). Authentication is configured at the Playwright project level with `storageState`; it does not use a custom auth fixture. Some directories are scaffolding for future work; their presence does not mean the corresponding integration is configured or complete.
 
 `src/utils/` currently includes helpers for test-data generation, JSON and environment-variable access, MySQL queries, UI waits, dates, and file uploads. Database tests require a reachable test database and runtime configuration; the presence of a client alone does not provide either.
 
